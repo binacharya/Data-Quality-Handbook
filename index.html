@@ -3110,70 +3110,602 @@ silver_totals <span class="kw">AS</span> (
       </div>
 
       <h3 class="section-title">How Poor Data Quality Manifests in AI</h3>
-      <p>Data quality problems affect AI and machine learning systems in distinct and often subtle ways:</p>
 
-      <div class="dimension-grid">
-        <div class="dimension-card">
-          <div class="d-icon" style="background:#fdedec">⚠️</div>
-          <h4>Training Bias</h4>
-          <p>Systematically skewed data causes models to encode and amplify existing biases, producing unfair or discriminatory outputs.</p>
+      <style>
+        .gigo-box { background:#fff8f0; border:2px solid #fed7aa; border-radius:14px; padding:18px 22px; margin:20px 0; }
+        .gigo-title { font-size:15px; font-weight:800; color:#92400e; margin-bottom:8px; }
+        .gigo-analogy { font-size:13px; color:#78350f; line-height:1.7; }
+        .gigo-analogy strong { color:#92400e; }
+        .ai-flow-wrap { margin:24px 0; overflow-x:auto; }
+        .ai-manifest-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:24px 0; }
+        .ai-manifest-card { background:white; border:1px solid #e2e8f0; border-radius:14px; overflow:hidden; }
+        .ai-mc-header { display:flex; align-items:center; gap:12px; padding:14px 16px 12px; border-bottom:1px solid #f0f0f0; }
+        .ai-mc-icon { font-size:24px; flex-shrink:0; }
+        .ai-mc-title { font-size:14px; font-weight:800; color:#0d1b2a; }
+        .ai-mc-subtitle { font-size:11px; color:#64748b; margin-top:2px; }
+        .ai-mc-body { padding:14px 16px; }
+        .ai-mc-what { font-size:12.5px; color:#334155; line-height:1.65; margin-bottom:12px; }
+        .ai-mc-analogy { background:#fffbeb; border-left:3px solid #f59e0b; padding:8px 12px; border-radius:0 8px 8px 0; font-size:12px; color:#78350f; font-style:italic; margin-bottom:12px; line-height:1.55; }
+        .ai-mc-example { margin-bottom:12px; }
+        .ai-mc-example-label { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:#94a3b8; margin-bottom:6px; }
+        .ai-data-row { display:flex; gap:8px; align-items:stretch; margin-bottom:6px; }
+        .ai-data-bad { background:#fef2f2; border:1px solid #fca5a5; border-radius:8px; padding:8px 10px; flex:1; font-size:11px; font-family:monospace; color:#991b1b; line-height:1.6; }
+        .ai-data-good { background:#f0fdf4; border:1px solid #86efac; border-radius:8px; padding:8px 10px; flex:1; font-size:11px; font-family:monospace; color:#14532d; line-height:1.6; }
+        .ai-data-label { font-size:9.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.4px; margin-bottom:3px; }
+        .ai-mc-impact { background:#fef2f2; border-radius:8px; padding:9px 12px; font-size:12px; color:#991b1b; display:flex; align-items:flex-start; gap:8px; line-height:1.55; }
+        .ai-mc-impact-icon { font-size:14px; flex-shrink:0; margin-top:1px; }
+      </style>
+
+      <!-- GIGO Intro -->
+      <div class="gigo-box">
+        <div class="gigo-title">The Golden Rule of AI: Garbage In, Garbage Out (GIGO)</div>
+        <div class="gigo-analogy">
+          Think of training an AI model like teaching a student from a textbook. If the textbook has wrong facts, missing chapters, and repeated pages — the student will learn those mistakes perfectly. AI doesn't question its data. It doesn't know when something is wrong. <strong>It will confidently repeat every error in its training data, at scale, and at speed.</strong> A human analyst might catch a suspicious number. An AI model will build its entire world view around it.
         </div>
-        <div class="dimension-card">
-          <div class="d-icon" style="background:#fef9e7">📉</div>
-          <h4>Concept Drift</h4>
-          <p>When real-world patterns change but training data doesn't reflect it, model performance degrades silently over time.</p>
+      </div>
+
+      <!-- Visual: GIGO Pipeline SVG -->
+      <div class="ai-flow-wrap">
+        <svg viewBox="0 0 760 180" xmlns="http://www.w3.org/2000/svg" style="width:100%; min-width:580px; max-height:180px;">
+          <defs>
+            <marker id="flarr" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+              <polygon points="0 0, 8 3, 0 6" fill="#94a3b8"/>
+            </marker>
+            <marker id="flarrred" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+              <polygon points="0 0, 8 3, 0 6" fill="#f87171"/>
+            </marker>
+          </defs>
+
+          <!-- Stage boxes -->
+          <!-- 1: Raw Data -->
+          <rect x="10" y="50" width="110" height="70" rx="10" fill="#fef2f2" stroke="#fca5a5" stroke-width="1.5"/>
+          <text x="65" y="78" text-anchor="middle" font-size="18">🗄️</text>
+          <text x="65" y="96" text-anchor="middle" fill="#991b1b" font-size="10" font-weight="700">Raw Data</text>
+          <text x="65" y="110" text-anchor="middle" fill="#dc2626" font-size="9">Dirty, incomplete</text>
+
+          <!-- Arrow 1 -->
+          <line x1="122" y1="85" x2="148" y2="85" stroke="#f87171" stroke-width="2" marker-end="url(#flarrred)"/>
+          <text x="135" y="78" text-anchor="middle" fill="#dc2626" font-size="8" font-weight="600">bad data</text>
+
+          <!-- 2: Preprocessing -->
+          <rect x="150" y="50" width="120" height="70" rx="10" fill="#fff8f0" stroke="#fed7aa" stroke-width="1.5"/>
+          <text x="210" y="78" text-anchor="middle" font-size="18">⚙️</text>
+          <text x="210" y="96" text-anchor="middle" fill="#92400e" font-size="10" font-weight="700">Pre-processing</text>
+          <text x="210" y="110" text-anchor="middle" fill="#b45309" font-size="9">Errors pass through</text>
+
+          <!-- Arrow 2 -->
+          <line x1="272" y1="85" x2="298" y2="85" stroke="#f87171" stroke-width="2" marker-end="url(#flarrred)"/>
+          <text x="285" y="78" text-anchor="middle" fill="#dc2626" font-size="8" font-weight="600">still bad</text>
+
+          <!-- 3: Training -->
+          <rect x="300" y="50" width="120" height="70" rx="10" fill="#fff8f0" stroke="#fed7aa" stroke-width="1.5"/>
+          <text x="360" y="78" text-anchor="middle" font-size="18">🧠</text>
+          <text x="360" y="96" text-anchor="middle" fill="#92400e" font-size="10" font-weight="700">Model Training</text>
+          <text x="360" y="110" text-anchor="middle" fill="#b45309" font-size="9">Learns the errors</text>
+
+          <!-- Arrow 3 -->
+          <line x1="422" y1="85" x2="448" y2="85" stroke="#f87171" stroke-width="2" marker-end="url(#flarrred)"/>
+          <text x="435" y="78" text-anchor="middle" fill="#dc2626" font-size="8" font-weight="600">flawed model</text>
+
+          <!-- 4: Predictions -->
+          <rect x="450" y="50" width="120" height="70" rx="10" fill="#fef2f2" stroke="#fca5a5" stroke-width="1.5"/>
+          <text x="510" y="78" text-anchor="middle" font-size="18">📊</text>
+          <text x="510" y="96" text-anchor="middle" fill="#991b1b" font-size="10" font-weight="700">Predictions</text>
+          <text x="510" y="110" text-anchor="middle" fill="#dc2626" font-size="9">Wrong at scale</text>
+
+          <!-- Arrow 4 -->
+          <line x1="572" y1="85" x2="598" y2="85" stroke="#f87171" stroke-width="2" marker-end="url(#flarrred)"/>
+          <text x="585" y="78" text-anchor="middle" fill="#dc2626" font-size="8" font-weight="600">damage</text>
+
+          <!-- 5: Business Impact -->
+          <rect x="600" y="50" width="148" height="70" rx="10" fill="#fef2f2" stroke="#ef4444" stroke-width="2"/>
+          <text x="674" y="78" text-anchor="middle" font-size="18">💥</text>
+          <text x="674" y="96" text-anchor="middle" fill="#7f1d1d" font-size="10" font-weight="800">Business Impact</text>
+          <text x="674" y="110" text-anchor="middle" fill="#991b1b" font-size="9">Lost revenue, bad decisions</text>
+
+          <!-- Labels at top -->
+          <text x="380" y="22" text-anchor="middle" fill="#dc2626" font-size="11" font-weight="700">The GIGO Pipeline — How Bad Data Corrupts AI</text>
+          <line x1="60" y1="30" x2="700" y2="30" stroke="#fca5a5" stroke-width="1" stroke-dasharray="4,3"/>
+
+          <!-- Good data comparison at bottom -->
+          <text x="380" y="155" text-anchor="middle" fill="#64748b" font-size="9">Compare: Clean data → accurate preprocessing → well-trained model → reliable predictions → confident decisions ✅</text>
+        </svg>
+      </div>
+
+      <!-- 6 Manifestation Cards -->
+      <p style="font-size:13px; color:#475569; margin-bottom:4px;">Here are the six most common ways poor data quality breaks AI systems — explained simply, with real examples:</p>
+      <div class="ai-manifest-grid">
+
+        <!-- 1. Training Bias -->
+        <div class="ai-manifest-card" style="border-top:3px solid #dc2626;">
+          <div class="ai-mc-header" style="background:#fef2f2;">
+            <div class="ai-mc-icon">⚖️</div>
+            <div>
+              <div class="ai-mc-title">1. Training Bias</div>
+              <div class="ai-mc-subtitle">The AI learns prejudice from skewed data</div>
+            </div>
+          </div>
+          <div class="ai-mc-body">
+            <div class="ai-mc-what">When training data over-represents one group and under-represents another, the AI learns to favour the majority group — not because it's right, but because that's all it has seen.</div>
+            <div class="ai-mc-analogy">Think of it like: Teaching someone to identify fruit by only showing them green apples. They'll call every apple "green" — not because all apples are green, but because that's all they were taught.</div>
+            <div class="ai-mc-example">
+              <div class="ai-mc-example-label">Real Example — Hiring AI Tool</div>
+              <div class="ai-data-row">
+                <div class="ai-data-bad"><div class="ai-data-label">Training Data (Biased)</div>92% of historical "successful hire" records are male engineers from 3 universities</div>
+                <div class="ai-data-good"><div class="ai-data-label">What Should Happen</div>Diverse pool of successful hires across gender, background, and institution</div>
+              </div>
+            </div>
+            <div class="ai-mc-impact"><span class="ai-mc-impact-icon">💥</span>The AI systematically ranks female candidates and non-target-university applicants lower — not due to skill, but because its training data encoded historical hiring bias as "the right answer."</div>
+          </div>
         </div>
-        <div class="dimension-card">
-          <div class="d-icon" style="background:#e8f4fd">🔇</div>
-          <h4>Signal Noise</h4>
-          <p>Duplicate records, outliers, and inconsistent values create noise that drowns out genuine patterns the model should learn.</p>
+
+        <!-- 2. Concept Drift -->
+        <div class="ai-manifest-card" style="border-top:3px solid #d97706;">
+          <div class="ai-mc-header" style="background:#fffbeb;">
+            <div class="ai-mc-icon">📉</div>
+            <div>
+              <div class="ai-mc-title">2. Concept Drift</div>
+              <div class="ai-mc-subtitle">The world changes; the model doesn't know</div>
+            </div>
+          </div>
+          <div class="ai-mc-body">
+            <div class="ai-mc-what">AI models are trained on historical data. When real-world patterns change — due to market shifts, events, or new customer behaviours — the model keeps using the old rules. It doesn't notice the world has moved on.</div>
+            <div class="ai-mc-analogy">Think of it like: A weather model trained only on summers being asked to forecast in winter. It will keep predicting sunshine because it has never seen snow.</div>
+            <div class="ai-mc-example">
+              <div class="ai-mc-example-label">Real Example — Fraud Detection (COVID-19)</div>
+              <div class="ai-data-row">
+                <div class="ai-data-bad"><div class="ai-data-label">Pre-COVID Training Data</div>Buying groceries online = suspicious. Most fraud happened via online channels in 2019.</div>
+                <div class="ai-data-good"><div class="ai-data-label">Post-COVID Reality</div>Online grocery orders became the norm for millions. Behaviour changed completely.</div>
+              </div>
+            </div>
+            <div class="ai-mc-impact"><span class="ai-mc-impact-icon">💥</span>Banks using pre-2020 fraud models flagged millions of legitimate online grocery and delivery transactions as fraud in 2020–21 — blocking valid customers and generating thousands of false alerts daily.</div>
+          </div>
         </div>
-        <div class="dimension-card">
-          <div class="d-icon" style="background:#eafaf1">🕳️</div>
-          <h4>Missing Context</h4>
-          <p>Incomplete data leaves critical context gaps, causing models to make predictions without the information they need.</p>
+
+        <!-- 3. Signal Noise from Duplicates -->
+        <div class="ai-manifest-card" style="border-top:3px solid #2563eb;">
+          <div class="ai-mc-header" style="background:#eff6ff;">
+            <div class="ai-mc-icon">🔇</div>
+            <div>
+              <div class="ai-mc-title">3. Signal Noise from Duplicates</div>
+              <div class="ai-mc-subtitle">Repeated data drowns out real patterns</div>
+            </div>
+          </div>
+          <div class="ai-mc-body">
+            <div class="ai-mc-what">Duplicate records, outliers, and inconsistent values create "noise" — false signals that the AI mistakes for real patterns. The model wastes its learning capacity on noise instead of genuine insight.</div>
+            <div class="ai-mc-analogy">Think of it like: Asking 10 people to rate a restaurant, but 7 of them are the same person who submitted multiple reviews. The average is meaningless — one person's opinion is disguised as many.</div>
+            <div class="ai-mc-example">
+              <div class="ai-mc-example-label">Real Example — E-commerce Recommendation Engine</div>
+              <div class="ai-data-row">
+                <div class="ai-data-bad"><div class="ai-data-label">Noisy Data</div>Product "Blue Sneakers" appears 3× due to duplicate SKUs: SKU-441, SKU-441B, sku_441. Combined, it looks like the most popular item.</div>
+                <div class="ai-data-good"><div class="ai-data-label">Clean Data</div>One SKU per product. True popularity based on actual distinct customer purchases.</div>
+              </div>
+            </div>
+            <div class="ai-mc-impact"><span class="ai-mc-impact-icon">💥</span>The recommendation engine promotes "Blue Sneakers" to every user regardless of their preferences, suppressing genuinely relevant products. Click-through rate drops 34%. The team blames the algorithm — the real problem is the data.</div>
+          </div>
         </div>
+
+        <!-- 4. Missing Context (Nulls) -->
+        <div class="ai-manifest-card" style="border-top:3px solid #1a7a6e;">
+          <div class="ai-mc-header" style="background:#f0fdfb;">
+            <div class="ai-mc-icon">🕳️</div>
+            <div>
+              <div class="ai-mc-title">4. Missing Context</div>
+              <div class="ai-mc-subtitle">NULL values teach the AI that "nothing" means something</div>
+            </div>
+          </div>
+          <div class="ai-mc-body">
+            <div class="ai-mc-what">When fields are missing (NULL), the AI doesn't skip them — it assigns them a default value (usually 0 or "unknown") and learns from that. If a pattern happens to correlate with NULLs, the model will use "missing data" as a decision signal — which is almost never what you want.</div>
+            <div class="ai-mc-analogy">Think of it like: A doctor predicting health outcomes but using "no data" as if it means "healthy." A patient with no recorded allergies is very different from a patient who has no allergies — but a model trained on NULL = 0 won't know the difference.</div>
+            <div class="ai-mc-example">
+              <div class="ai-mc-example-label">Real Example — Hospital Readmission Predictor</div>
+              <div class="ai-data-row">
+                <div class="ai-data-bad"><div class="ai-data-label">Missing Data in Training</div>age=NULL, medications=NULL for 40% of records (older patients pre-digitisation). Model learns NULL age → low readmission risk.</div>
+                <div class="ai-data-good"><div class="ai-data-label">Reality</div>NULL values are concentrated in elderly patients — who actually have the highest readmission risk.</div>
+              </div>
+            </div>
+            <div class="ai-mc-impact"><span class="ai-mc-impact-icon">💥</span>The model systematically under-predicts readmission risk for elderly patients — the exact group who need the most intervention. Discharge planning fails for the highest-risk patients because the AI labelled them "low risk."</div>
+          </div>
+        </div>
+
+        <!-- 5. Label Leakage -->
+        <div class="ai-manifest-card" style="border-top:3px solid #7c3aed;">
+          <div class="ai-mc-header" style="background:#f5f3ff;">
+            <div class="ai-mc-icon">🔓</div>
+            <div>
+              <div class="ai-mc-title">5. Label Leakage</div>
+              <div class="ai-mc-subtitle">The model accidentally "cheats" using future information</div>
+            </div>
+          </div>
+          <div class="ai-mc-body">
+            <div class="ai-mc-what">Label leakage happens when the training data accidentally includes information that would only be known after the event you're trying to predict. The model appears to perform brilliantly in testing — but fails completely in production because the "cheat" information doesn't exist at prediction time.</div>
+            <div class="ai-mc-analogy">Think of it like: Giving students the answer sheet during a practice exam. They all score 100%. On the real exam with no answer sheet, they fail — because they memorised answers, not the subject.</div>
+            <div class="ai-mc-example">
+              <div class="ai-mc-example-label">Real Example — Customer Churn Prediction</div>
+              <div class="ai-data-row">
+                <div class="ai-data-bad"><div class="ai-data-label">Leaked Training Data</div>Features: last_login, plan_type, <span style="background:#fee2e2; padding:0 3px; border-radius:3px;">cancellation_date (future!)</span>, support_tickets. Model gets 99% accuracy.</div>
+                <div class="ai-data-good"><div class="ai-data-label">Correct Features Only</div>last_login, plan_type, support_tickets, usage_30d. No future data. Realistic 78% accuracy.</div>
+              </div>
+            </div>
+            <div class="ai-mc-impact"><span class="ai-mc-impact-icon">💥</span>The team celebrates a "99% accurate churn model" and launches it. In production, it predicts randomly because the leaking column doesn't exist for active customers. Months of model development wasted. The data quality error was invisible until deployment.</div>
+          </div>
+        </div>
+
+        <!-- 6. Distribution Shift -->
+        <div class="ai-manifest-card" style="border-top:3px solid #0891b2;">
+          <div class="ai-mc-header" style="background:#ecfeff;">
+            <div class="ai-mc-icon">📡</div>
+            <div>
+              <div class="ai-mc-title">6. Distribution Shift</div>
+              <div class="ai-mc-subtitle">Training population ≠ production population</div>
+            </div>
+          </div>
+          <div class="ai-mc-body">
+            <div class="ai-mc-what">A model trained on one type of data is deployed to score a different type. The characteristics (distributions) of real users are different from the training set, so every prediction is being made outside the range of what the model has learned.</div>
+            <div class="ai-mc-analogy">Think of it like: Learning to drive on empty country roads, then being told to drive in central London on your first day. The skill was learned in completely different conditions from where it needs to work.</div>
+            <div class="ai-mc-example">
+              <div class="ai-mc-example-label">Real Example — Credit Scoring App</div>
+              <div class="ai-data-row">
+                <div class="ai-data-bad"><div class="ai-data-label">Training Data (Desktop Users)</div>Avg age: 42 · Income: £55K · Sessions: 2/month · Device: desktop</div>
+                <div class="ai-data-good"><div class="ai-data-label">Production Data (Mobile-First Users)</div>Avg age: 26 · Income: £28K · Sessions: 14/month · Device: mobile</div>
+              </div>
+            </div>
+            <div class="ai-mc-impact"><span class="ai-mc-impact-icon">💥</span>The credit model systematically assigns low scores to young mobile-first users — not because they're higher risk, but because they look nothing like the desktop users the model was trained on. A whole customer segment is unfairly denied credit.</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Summary callout -->
+      <div class="callout warning" style="margin-top:4px;">
+        <div class="callout-title">⚠️ The Compounding Problem</div>
+        <p>Most AI failures are not caused by a single data quality issue — they are caused by <strong>multiple problems compounding</strong>. A model may have training bias <em>and</em> missing context <em>and</em> concept drift all at once. Each issue multiplies the others. This is why data quality for AI must be treated as a systematic discipline, not a one-time clean-up task before model training.</p>
       </div>
 
       <h3 class="section-title">The Data Quality Pyramid for AI</h3>
-      <p>Successful AI requires data quality to be addressed at every layer, from raw ingestion to feature engineering:</p>
-      <div class="framework-layers">
-        <div class="layer" style="background:linear-gradient(135deg,#0d6b5e,#1a7a6e); color:white; font-size:13px; border-left:4px solid var(--gold);">
-          <div class="layer-num" style="background:var(--gold); color:var(--navy);">5</div>
-          <div class="layer-info"><h5 style="color:#fef3c7;">Model-Ready Features</h5><p style="color:rgba(255,255,255,0.9);">Normalized, encoded, and validated features with known distributions — ready for AI training</p></div>
+
+      <style>
+        .pyr-intro { background:#f8fafc; border-radius:12px; padding:16px 20px; margin-bottom:22px; border:1px solid #e2e8f0; font-size:13px; color:#334155; line-height:1.7; }
+        .pyr-intro strong { color:#1a7a6e; }
+        .pyr-layers-detail { display:grid; grid-template-columns:1fr; gap:10px; margin-top:24px; }
+        .pyr-layer-card { display:grid; grid-template-columns:48px 1fr; border-radius:12px; overflow:hidden; border:1px solid #e2e8f0; }
+        .pyr-layer-badge { display:flex; flex-direction:column; align-items:center; justify-content:center; padding:12px 6px; gap:2px; }
+        .pyr-layer-badge-num { font-size:20px; font-weight:900; line-height:1; }
+        .pyr-layer-badge-icon { font-size:14px; }
+        .pyr-layer-content { padding:14px 16px; }
+        .pyr-layer-title { font-size:14px; font-weight:800; color:#0d1b2a; margin-bottom:4px; }
+        .pyr-layer-plain { font-size:12.5px; color:#334155; margin-bottom:8px; line-height:1.6; }
+        .pyr-layer-why { font-size:12px; color:#475569; line-height:1.6; margin-bottom:8px; }
+        .pyr-layer-fail { background:#fef2f2; border-radius:7px; padding:7px 10px; font-size:11.5px; color:#991b1b; line-height:1.55; display:flex; gap:6px; align-items:flex-start; }
+        .pyr-checks { display:flex; flex-wrap:wrap; gap:5px; margin-top:8px; }
+        .pyr-check { background:white; border:1px solid #e2e8f0; border-radius:12px; padding:3px 10px; font-size:10.5px; color:#475569; font-weight:600; }
+        /* RAG styles */
+        .rag-intro-box { background:linear-gradient(135deg,#f0fdfb,#f0f9ff); border:1px solid #bae6fd; border-radius:14px; padding:20px 22px; margin:20px 0; }
+        .rag-intro-title { font-size:15px; font-weight:800; color:#0369a1; margin-bottom:10px; }
+        .rag-intro-text { font-size:13px; color:#0c4a6e; line-height:1.75; }
+        .rag-intro-text strong { color:#075985; }
+        .rag-flow-wrap { margin:24px 0; overflow-x:auto; }
+        .rag-dq-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:20px 0; }
+        .rag-dq-card { background:white; border-radius:12px; border:1px solid #e2e8f0; overflow:hidden; }
+        .rag-dq-header { padding:12px 14px 10px; border-bottom:1px solid #f0f0f0; display:flex; align-items:center; gap:10px; }
+        .rag-dq-icon { font-size:20px; }
+        .rag-dq-title { font-size:13px; font-weight:800; color:#0d1b2a; }
+        .rag-dq-body { padding:12px 14px; }
+        .rag-dq-what { font-size:12.5px; color:#334155; line-height:1.65; margin-bottom:10px; }
+        .rag-dq-analogy { font-size:12px; font-style:italic; color:#78350f; background:#fffbeb; border-left:3px solid #f59e0b; padding:7px 11px; border-radius:0 7px 7px 0; margin-bottom:10px; line-height:1.55; }
+        .rag-dq-example { font-size:12px; color:#475569; line-height:1.6; background:#f8fafc; border-radius:7px; padding:8px 10px; }
+        .rag-dq-example strong { color:#1a7a6e; }
+        .rag-use-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:10px; margin:20px 0; }
+        .rag-use-card { border-radius:11px; padding:14px 12px; text-align:center; border:1px solid #e2e8f0; background:white; }
+        .rag-use-icon { font-size:22px; margin-bottom:6px; }
+        .rag-use-title { font-size:11px; font-weight:800; color:#0d1b2a; margin-bottom:5px; line-height:1.3; }
+        .rag-use-dim { font-size:10px; font-weight:600; padding:2px 7px; border-radius:10px; display:inline-block; margin-bottom:5px; }
+        .rag-use-fail { font-size:10.5px; color:#64748b; line-height:1.4; }
+      </style>
+
+      <div class="pyr-intro">
+        <strong>What is the DQ Pyramid for AI?</strong> Think of building an AI model like constructing a house. You cannot build the roof before the walls, and you cannot build the walls without a solid foundation. Similarly, you cannot have "model-ready" features if the underlying data is incomplete, inconsistent, or unvalidated. Each layer of the pyramid must be achieved before the one above it can be trusted. <strong>Skipping a layer doesn't save time — it just hides a problem that will surface later in production.</strong>
+      </div>
+
+      <!-- Pyramid SVG -->
+      <div style="overflow-x:auto; margin:0 0 8px;">
+        <svg viewBox="0 0 680 310" xmlns="http://www.w3.org/2000/svg" style="width:100%; min-width:500px; max-height:310px;">
+          <!-- Layer 5 - Top (goal, gold) -->
+          <polygon points="340,28 408,82 272,82" fill="#fef3c7" stroke="#f59e0b" stroke-width="1.5"/>
+          <text x="340" y="55" text-anchor="middle" fill="#92400e" font-size="9.5" font-weight="800">⭐ MODEL-READY FEATURES</text>
+          <text x="340" y="70" text-anchor="middle" fill="#b45309" font-size="8">Layer 5 · The Goal</text>
+
+          <!-- Layer 4 -->
+          <polygon points="272,84 408,84 466,138 214,138" fill="#d1fae5" stroke="#6ee7b7" stroke-width="1.5"/>
+          <text x="340" y="106" text-anchor="middle" fill="#064e3b" font-size="9.5" font-weight="800">BUSINESS-VALIDATED DATA</text>
+          <text x="340" y="121" text-anchor="middle" fill="#065f46" font-size="8">Layer 4 · Trusted by domain experts</text>
+
+          <!-- Layer 3 -->
+          <polygon points="214,140 466,140 524,194 156,194" fill="#e0f8f5" stroke="#4db8ac" stroke-width="1.5"/>
+          <text x="340" y="162" text-anchor="middle" fill="#0d4a43" font-size="9.5" font-weight="800">CONSISTENT &amp; DEDUPLICATED</text>
+          <text x="340" y="177" text-anchor="middle" fill="#0d6b5e" font-size="8">Layer 3 · One version of truth</text>
+
+          <!-- Layer 2 -->
+          <polygon points="156,196 524,196 582,250 98,250" fill="#eff6ff" stroke="#93c5fd" stroke-width="1.5"/>
+          <text x="340" y="218" text-anchor="middle" fill="#1e3a8a" font-size="9.5" font-weight="800">STRUCTURALLY VALID</text>
+          <text x="340" y="233" text-anchor="middle" fill="#1e40af" font-size="8">Layer 2 · Correct types, schemas, formats</text>
+
+          <!-- Layer 1 - Bottom (foundation) -->
+          <polygon points="98,252 582,252 640,306 40,306" fill="#f0fdfb" stroke="#1a7a6e" stroke-width="2"/>
+          <text x="340" y="274" text-anchor="middle" fill="#0d1b2a" font-size="9.5" font-weight="800">COMPLETE &amp; ACCESSIBLE</text>
+          <text x="340" y="289" text-anchor="middle" fill="#334155" font-size="8">Layer 1 · Foundation — data exists and can be reached</text>
+
+          <!-- Side label: direction arrow -->
+          <line x1="658" y1="295" x2="658" y2="45" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#pyrarr)"/>
+          <defs><marker id="pyrarr" markerWidth="7" markerHeight="6" refX="6" refY="3" orient="auto"><polygon points="0 0,7 3,0 6" fill="#94a3b8"/></marker></defs>
+          <text x="672" y="200" text-anchor="middle" fill="#94a3b8" font-size="9" font-weight="600" transform="rotate(90,672,200)">Build upward →</text>
+
+          <!-- Side label: bottom -->
+          <text x="20" y="295" text-anchor="middle" fill="#64748b" font-size="8.5" font-weight="700" transform="rotate(-90,20,295)">Foundation</text>
+          <text x="20" y="55" text-anchor="middle" fill="#b45309" font-size="8.5" font-weight="700" transform="rotate(-90,20,55)">AI Goal ⭐</text>
+        </svg>
+      </div>
+
+      <!-- Layer detail cards (bottom to top = 1 to 5) -->
+      <div class="pyr-layers-detail">
+        <!-- Layer 1 -->
+        <div class="pyr-layer-card" style="border-color:#1a7a6e;">
+          <div class="pyr-layer-badge" style="background:#f0fdfb;">
+            <div class="pyr-layer-badge-num" style="color:#1a7a6e;">1</div>
+            <div class="pyr-layer-badge-icon">🗄️</div>
+          </div>
+          <div class="pyr-layer-content">
+            <div class="pyr-layer-title">Complete &amp; Accessible — The Foundation</div>
+            <div class="pyr-layer-plain"><strong>In plain English:</strong> Your data actually exists, it can be read by your systems, and the most important fields are not empty. This sounds obvious — but it is the most commonly violated layer. An AI cannot be trained on data that doesn't exist or can't be accessed.</div>
+            <div class="pyr-layer-why"><strong>Why it matters for AI:</strong> If 30% of customer age fields are NULL, the model either learns that NULL is a valid age group, or it drops those rows entirely — potentially losing patterns that only appear in younger or older users.</div>
+            <div class="pyr-layer-fail"><span>💥</span> <span>If you skip this: Your model trains on a fraction of the real population. The gaps aren't random — they're systematic — and the model learns the wrong reality.</span></div>
+            <div class="pyr-checks"><span class="pyr-check">✓ No NULL in critical fields</span><span class="pyr-check">✓ Freshness within SLA</span><span class="pyr-check">✓ All source tables ingested</span><span class="pyr-check">✓ Row counts match expectations</span></div>
+          </div>
         </div>
-        <div class="layer" style="background:linear-gradient(135deg,#1a7a6e,#2aa897); color:white; font-size:13px;">
-          <div class="layer-num" style="background:rgba(255,255,255,0.25); color:white;">4</div>
-          <div class="layer-info"><h5 style="color:white;">Business-Validated Data</h5><p style="color:rgba(255,255,255,0.9);">Data passes domain-specific business rules and has been reviewed by subject matter experts</p></div>
+        <!-- Layer 2 -->
+        <div class="pyr-layer-card" style="border-color:#93c5fd;">
+          <div class="pyr-layer-badge" style="background:#eff6ff;">
+            <div class="pyr-layer-badge-num" style="color:#1e40af;">2</div>
+            <div class="pyr-layer-badge-icon">🔧</div>
+          </div>
+          <div class="pyr-layer-content">
+            <div class="pyr-layer-title">Structurally Valid — Correct Shape and Format</div>
+            <div class="pyr-layer-plain"><strong>In plain English:</strong> Every field contains the right type of value in the right format. A date field holds actual dates (not "N/A" or "12-31-99"). A price field holds numbers (not "$12.99" with a dollar sign). A country code field holds "GB" (not "United Kingdom" or "uk" or "Britain").</div>
+            <div class="pyr-layer-why"><strong>Why it matters for AI:</strong> AI models work with numbers. When a model encounters "twelve" instead of 12, it either crashes, ignores the row, or encodes the text string as a meaningless code. Any of these outcomes corrupts the model's understanding of that feature.</div>
+            <div class="pyr-layer-fail"><span>💥</span> <span>A pricing model trained on a "revenue" column that sometimes contains text values like "N/A" or "—" will learn that these strings predict something — they don't. They're just missing data.</span></div>
+            <div class="pyr-checks"><span class="pyr-check">✓ Correct data types</span><span class="pyr-check">✓ Standardised formats</span><span class="pyr-check">✓ Referential integrity</span><span class="pyr-check">✓ Valid domain values</span></div>
+          </div>
         </div>
-        <div class="layer" style="background:linear-gradient(135deg,#2aa897,#4db8ac); color:white; font-size:13px;">
-          <div class="layer-num" style="background:rgba(255,255,255,0.25); color:white;">3</div>
-          <div class="layer-info"><h5 style="color:white;">Consistent &amp; Deduplicated</h5><p style="color:rgba(255,255,255,0.9);">Cross-system reconciliation complete; golden records established; duplicates removed</p></div>
+        <!-- Layer 3 -->
+        <div class="pyr-layer-card" style="border-color:#4db8ac;">
+          <div class="pyr-layer-badge" style="background:#e0f8f5;">
+            <div class="pyr-layer-badge-num" style="color:#0d6b5e;">3</div>
+            <div class="pyr-layer-badge-icon">🔗</div>
+          </div>
+          <div class="pyr-layer-content">
+            <div class="pyr-layer-title">Consistent &amp; Deduplicated — One Version of Truth</div>
+            <div class="pyr-layer-plain"><strong>In plain English:</strong> The same customer, product, or event is recorded the same way everywhere in your system. "Jane Smith", "J. Smith", and "jane smith" are the same person — but your AI doesn't know that unless you've done deduplication. If they're treated as three separate people, the model divides that person's behaviour into three weaker signals.</div>
+            <div class="pyr-layer-why"><strong>Why it matters for AI:</strong> Duplicates artificially inflate the weight of certain records. If customer 447 appears three times in training data, the model thinks their behaviour pattern is three times more common than it actually is. This skews every prediction involving similar customers.</div>
+            <div class="pyr-layer-fail"><span>💥</span> <span>A churn model trained on duplicated customer records inflates the apparent size of certain segments. When deployed on clean production data, the predictions become inconsistent because the "population" the model learned from doesn't match reality.</span></div>
+            <div class="pyr-checks"><span class="pyr-check">✓ No duplicate records</span><span class="pyr-check">✓ Golden records defined</span><span class="pyr-check">✓ Cross-system reconciliation</span><span class="pyr-check">✓ Consistent field values</span></div>
+          </div>
         </div>
-        <div class="layer" style="background:linear-gradient(135deg,#4db8ac,#7ecdc7); font-size:13px; color:var(--navy);">
-          <div class="layer-num" style="background:rgba(255,255,255,0.5); color:var(--navy);">2</div>
-          <div class="layer-info"><h5 style="color:var(--navy);">Structurally Valid</h5><p style="color:var(--gray-600);">Schema conformance enforced; data types correct; referential integrity intact</p></div>
+        <!-- Layer 4 -->
+        <div class="pyr-layer-card" style="border-color:#6ee7b7;">
+          <div class="pyr-layer-badge" style="background:#d1fae5;">
+            <div class="pyr-layer-badge-num" style="color:#064e3b;">4</div>
+            <div class="pyr-layer-badge-icon">✅</div>
+          </div>
+          <div class="pyr-layer-content">
+            <div class="pyr-layer-title">Business-Validated — Confirmed by the People Who Know</div>
+            <div class="pyr-layer-plain"><strong>In plain English:</strong> A subject matter expert — someone who actually works with this data — has confirmed it makes sense in the real world. Technical checks can verify that a credit score is a number between 300 and 850. But only a credit analyst can confirm that a score of 310 for someone with 15 years of pristine history is suspicious and probably a data entry error.</div>
+            <div class="pyr-layer-why"><strong>Why it matters for AI:</strong> Many data errors are technically valid but factually wrong. A patient listed as 7 feet 4 inches tall, a transaction of $0.01 for a commercial property sale, a product weight of 0.001g for a TV — these pass all format checks but are clearly wrong. Only a human expert can catch these, and the AI will learn from them as if they were real.</div>
+            <div class="pyr-layer-fail"><span>💥</span> <span>A property valuation model trained on a dataset where 200 high-value sales were recorded as £1 (due to a system migration bug that passed all format checks) will dramatically undervalue similar properties in production.</span></div>
+            <div class="pyr-checks"><span class="pyr-check">✓ Business rules validated</span><span class="pyr-check">✓ SME sign-off on training data</span><span class="pyr-check">✓ Outlier review completed</span><span class="pyr-check">✓ Domain logic verified</span></div>
+          </div>
         </div>
-        <div class="layer" style="background:var(--teal-pale); color:var(--navy); font-size:13px; border:1px solid var(--teal);">
-          <div class="layer-num" style="background:white; color:var(--teal); border:2px solid var(--teal);">1</div>
-          <div class="layer-info"><h5 style="color:var(--navy);">Complete &amp; Accessible</h5><p style="color:var(--gray-600);">Data is fully ingested, no critical NULLs, freshness requirements met</p></div>
+        <!-- Layer 5 -->
+        <div class="pyr-layer-card" style="border-color:#f59e0b; border-width:2px;">
+          <div class="pyr-layer-badge" style="background:#fef3c7;">
+            <div class="pyr-layer-badge-num" style="color:#92400e;">5</div>
+            <div class="pyr-layer-badge-icon">⭐</div>
+          </div>
+          <div class="pyr-layer-content">
+            <div class="pyr-layer-title">Model-Ready Features — The Final Form</div>
+            <div class="pyr-layer-plain"><strong>In plain English:</strong> Data has been transformed into the exact numerical format the AI model needs, with known statistical properties. Age might be normalised to a 0–1 scale. Categories like "country" are encoded as numbers. Irrelevant columns are removed. Correlated columns are handled. This is the layer where data scientists spend the most time — and it's wasted if the layers below are broken.</div>
+            <div class="pyr-layer-why"><strong>Why it matters for AI:</strong> AI models are mathematical functions. They require inputs within expected ranges, with consistent scales, and without surprise values they've never seen before. A model trained on ages 0–100 will behave unpredictably if it encounters age=999 at prediction time — even if every other layer is perfect.</div>
+            <div class="pyr-layer-fail"><span>💥</span> <span>Investing 6 months in building the perfect feature engineering pipeline is worthless if the raw data feeding it has duplicate customers, inconsistent country codes, or business-rule violations that were never caught at Layers 1–4.</span></div>
+            <div class="pyr-checks"><span class="pyr-check">✓ Normalised / scaled</span><span class="pyr-check">✓ Encoded categoricals</span><span class="pyr-check">✓ No data leakage</span><span class="pyr-check">✓ Known distributions</span><span class="pyr-check">✓ Feature documentation</span></div>
+          </div>
         </div>
       </div>
 
+      <!-- ═══════════════════════════════════════════════════════════ -->
       <h3 class="section-title">LLMs and Retrieval-Augmented Generation (RAG)</h3>
-      <p>The emergence of Large Language Models and Retrieval-Augmented Generation (RAG) architectures has introduced entirely new data quality requirements. When an LLM retrieves documents from a knowledge base to answer questions, the quality of those documents directly determines the quality of the answers.</p>
-      <div class="callout warning"><div class="callout-title">⚠️ RAG Data Quality Risks</div><p>Outdated documents, contradictory facts across sources, duplicate content, and poor metadata all degrade RAG system performance. Garbage in, hallucination out. Establish DQ checks on all knowledge base content before indexing.</p></div>
 
-      <table class="data-table">
-        <thead><tr><th>AI Use Case</th><th>Critical DQ Dimensions</th><th>Failure Mode if DQ is Poor</th></tr></thead>
-        <tbody>
-          <tr><td>Customer Churn Prediction</td><td>Completeness, Timeliness</td><td>Model doesn't detect early warning signals</td></tr>
-          <tr><td>Fraud Detection</td><td>Accuracy, Uniqueness</td><td>False positives/negatives cause financial loss</td></tr>
-          <tr><td>Demand Forecasting</td><td>Consistency, Timeliness</td><td>Inventory misallocation, stockouts</td></tr>
-          <tr><td>RAG / LLM Systems</td><td>Accuracy, Freshness</td><td>Hallucinations, outdated answers</td></tr>
-          <tr><td>Recommendation Engines</td><td>Completeness, Accuracy</td><td>Irrelevant or biased recommendations</td></tr>
-        </tbody>
-      </table>
+      <!-- What is an LLM / RAG? Beginner intro -->
+      <div class="rag-intro-box">
+        <div class="rag-intro-title">🤖 New to LLMs and RAG? Start Here.</div>
+        <div class="rag-intro-text">
+          <strong>Large Language Models (LLMs)</strong> — like ChatGPT or Claude — are AI systems trained on massive amounts of text. They can write, answer questions, summarise documents, and hold conversations. But they have a key limitation: <strong>their knowledge is frozen at the time they were trained</strong>. Ask an LLM about something that happened last week, and it won't know.<br><br>
+          <strong>Retrieval-Augmented Generation (RAG)</strong> solves this by giving the LLM access to a live, searchable knowledge base. Instead of relying only on what it was trained on, the LLM first <em>retrieves</em> relevant documents from your organisation's knowledge base (policy docs, product manuals, customer data, research papers), then <em>generates</em> an answer using those documents as context.<br><br>
+          Think of it like this: <strong>without RAG</strong>, the LLM is a brilliant person who read every book up to 2023 but is locked in a room with no internet. <strong>With RAG</strong>, they now have a filing cabinet in the room — and your answers are only as good as what's in that filing cabinet.
+        </div>
+      </div>
+
+      <!-- RAG Flow Diagram SVG -->
+      <div class="rag-flow-wrap">
+        <svg viewBox="0 0 760 220" xmlns="http://www.w3.org/2000/svg" style="width:100%; min-width:600px; max-height:220px;">
+          <defs>
+            <marker id="ragarr" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+              <polygon points="0 0,8 3,0 6" fill="#94a3b8"/>
+            </marker>
+            <marker id="ragarr2" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+              <polygon points="0 0,8 3,0 6" fill="#1a7a6e"/>
+            </marker>
+            <marker id="ragarrred" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+              <polygon points="0 0,8 3,0 6" fill="#dc2626"/>
+            </marker>
+          </defs>
+
+          <!-- Title -->
+          <text x="380" y="18" text-anchor="middle" fill="#0d1b2a" font-size="12" font-weight="800">How RAG Works — And Where Data Quality Can Break It</text>
+
+          <!-- Step 1: User Question -->
+          <rect x="10" y="35" width="108" height="65" rx="10" fill="#f0f9ff" stroke="#7dd3fc" stroke-width="1.5"/>
+          <text x="64" y="58" text-anchor="middle" font-size="18">🙋</text>
+          <text x="64" y="75" text-anchor="middle" fill="#0369a1" font-size="9" font-weight="700">User Question</text>
+          <text x="64" y="89" text-anchor="middle" fill="#0284c7" font-size="8">"What is our refund</text>
+          <text x="64" y="100" text-anchor="middle" fill="#0284c7" font-size="8">policy for 2025?"</text>
+
+          <!-- Arrow 1 -->
+          <line x1="120" y1="67" x2="148" y2="67" stroke="#94a3b8" stroke-width="1.8" marker-end="url(#ragarr)"/>
+
+          <!-- Step 2: Retriever -->
+          <rect x="150" y="35" width="118" height="65" rx="10" fill="#fefce8" stroke="#fde047" stroke-width="1.5"/>
+          <text x="209" y="58" text-anchor="middle" font-size="18">🔍</text>
+          <text x="209" y="75" text-anchor="middle" fill="#854d0e" font-size="9" font-weight="700">Retriever / Search</text>
+          <text x="209" y="89" text-anchor="middle" fill="#a16207" font-size="8">Searches knowledge</text>
+          <text x="209" y="100" text-anchor="middle" fill="#a16207" font-size="8">base for relevant docs</text>
+
+          <!-- DQ Risk 1 annotation (poor metadata) -->
+          <rect x="158" y="112" width="102" height="22" rx="5" fill="#fef2f2" stroke="#fca5a5" stroke-width="1"/>
+          <text x="209" y="127" text-anchor="middle" fill="#dc2626" font-size="8" font-weight="600">⚠ Poor metadata → wrong docs</text>
+
+          <!-- Arrow 2 -->
+          <line x1="270" y1="67" x2="298" y2="67" stroke="#94a3b8" stroke-width="1.8" marker-end="url(#ragarr)"/>
+
+          <!-- Step 3: Knowledge Base -->
+          <rect x="300" y="28" width="120" height="82" rx="10" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5"/>
+          <text x="360" y="52" text-anchor="middle" font-size="18">📚</text>
+          <text x="360" y="68" text-anchor="middle" fill="#334155" font-size="9" font-weight="700">Knowledge Base</text>
+          <text x="360" y="81" text-anchor="middle" fill="#64748b" font-size="8">Policy docs · Manuals</text>
+          <text x="360" y="93" text-anchor="middle" fill="#64748b" font-size="8">Research · Reports</text>
+          <text x="360" y="105" text-anchor="middle" fill="#64748b" font-size="8">FAQs · Emails</text>
+
+          <!-- DQ Risk 2 annotation (outdated/contradictory) -->
+          <rect x="305" y="120" width="110" height="22" rx="5" fill="#fef2f2" stroke="#fca5a5" stroke-width="1"/>
+          <text x="360" y="135" text-anchor="middle" fill="#dc2626" font-size="8" font-weight="600">⚠ Outdated or contradictory docs</text>
+
+          <!-- Arrow 3 (docs retrieved to context) -->
+          <line x1="422" y1="67" x2="450" y2="67" stroke="#94a3b8" stroke-width="1.8" marker-end="url(#ragarr)"/>
+          <text x="436" y="60" text-anchor="middle" fill="#64748b" font-size="7.5">retrieved</text>
+          <text x="436" y="80" text-anchor="middle" fill="#64748b" font-size="7.5">context</text>
+
+          <!-- Step 4: Context + Question combined -->
+          <rect x="452" y="35" width="118" height="65" rx="10" fill="#f0fdfb" stroke="#4db8ac" stroke-width="1.5"/>
+          <text x="511" y="55" text-anchor="middle" font-size="15">📋 + 🙋</text>
+          <text x="511" y="72" text-anchor="middle" fill="#0d6b5e" font-size="9" font-weight="700">Context + Question</text>
+          <text x="511" y="85" text-anchor="middle" fill="#1a7a6e" font-size="8">Packaged as a prompt</text>
+          <text x="511" y="97" text-anchor="middle" fill="#1a7a6e" font-size="8">for the LLM</text>
+
+          <!-- DQ Risk 3 annotation (duplicates) -->
+          <rect x="458" y="112" width="106" height="22" rx="5" fill="#fef2f2" stroke="#fca5a5" stroke-width="1"/>
+          <text x="511" y="127" text-anchor="middle" fill="#dc2626" font-size="8" font-weight="600">⚠ Duplicate docs waste context</text>
+
+          <!-- Arrow 4 -->
+          <line x1="572" y1="67" x2="600" y2="67" stroke="#1a7a6e" stroke-width="1.8" marker-end="url(#ragarr2)"/>
+
+          <!-- Step 5: LLM Answer -->
+          <rect x="602" y="35" width="148" height="65" rx="10" fill="#f0fdf4" stroke="#86efac" stroke-width="2"/>
+          <text x="676" y="55" text-anchor="middle" font-size="18">🤖</text>
+          <text x="676" y="72" text-anchor="middle" fill="#14532d" font-size="9" font-weight="700">LLM Generates Answer</text>
+          <text x="676" y="85" text-anchor="middle" fill="#166534" font-size="8">Based on retrieved context</text>
+          <text x="676" y="97" text-anchor="middle" fill="#166534" font-size="8">+ its own training</text>
+
+          <!-- Good/bad outcome -->
+          <rect x="606" y="112" width="140" height="22" rx="5" fill="#fef2f2" stroke="#fca5a5" stroke-width="1"/>
+          <text x="676" y="127" text-anchor="middle" fill="#dc2626" font-size="8" font-weight="600">⚠ Bad docs → hallucination risk</text>
+
+          <!-- Bottom note -->
+          <text x="380" y="168" text-anchor="middle" fill="#64748b" font-size="9">With good DQ: precise, up-to-date, trustworthy answers ✅ · With poor DQ: confident-sounding but wrong answers ❌</text>
+          <text x="380" y="183" text-anchor="middle" fill="#94a3b8" font-size="8.5">The LLM sounds equally confident regardless of data quality — that is what makes RAG DQ failures so dangerous</text>
+        </svg>
+      </div>
+
+      <!-- 4 RAG DQ Risk Cards -->
+      <div class="rag-dq-grid">
+        <div class="rag-dq-card" style="border-top:3px solid #dc2626;">
+          <div class="rag-dq-header" style="background:#fef2f2;">
+            <div class="rag-dq-icon">📅</div>
+            <div class="rag-dq-title">Outdated Documents</div>
+          </div>
+          <div class="rag-dq-body">
+            <div class="rag-dq-what">The knowledge base contains old versions of documents that have since been updated. The retriever fetches the outdated version and the LLM answers based on old information — confidently and incorrectly.</div>
+            <div class="rag-dq-analogy">Like asking someone to check the company handbook, but they're reading the 2019 edition when the 2025 edition has completely different policies.</div>
+            <div class="rag-dq-example"><strong>Real impact:</strong> An HR chatbot built on company policy documents answers questions about parental leave using a 2021 policy that was updated in 2024. Employees receive incorrect information — and the answer sounds authoritative because the LLM is confident.</div>
+          </div>
+        </div>
+        <div class="rag-dq-card" style="border-top:3px solid #d97706;">
+          <div class="rag-dq-header" style="background:#fffbeb;">
+            <div class="rag-dq-icon">⚔️</div>
+            <div class="rag-dq-title">Contradictory Facts</div>
+          </div>
+          <div class="rag-dq-body">
+            <div class="rag-dq-what">Multiple documents in the knowledge base say different things about the same topic. The retriever returns both, and the LLM either picks one arbitrarily, hedges confusingly, or blends them into a new "fact" that matches neither source.</div>
+            <div class="rag-dq-analogy">Like asking 3 colleagues the same question and getting 3 different answers — then being asked to tell your manager "what the company policy is".</div>
+            <div class="rag-dq-example"><strong>Real impact:</strong> A customer support bot is trained on a knowledge base where the product FAQ says "returns within 30 days" and a separate policy doc says "returns within 14 days". The bot sometimes says 30, sometimes 14 — destroying customer trust.</div>
+          </div>
+        </div>
+        <div class="rag-dq-card" style="border-top:3px solid #2563eb;">
+          <div class="rag-dq-header" style="background:#eff6ff;">
+            <div class="rag-dq-icon">📄📄📄</div>
+            <div class="rag-dq-title">Duplicate Content</div>
+          </div>
+          <div class="rag-dq-body">
+            <div class="rag-dq-what">The same document, or near-identical documents, are indexed multiple times. When the retriever fetches the "top 5 most relevant documents", 4 of them are copies of the same content — wasting the LLM's context window and crowding out genuinely different, useful sources.</div>
+            <div class="rag-dq-analogy">Like going to a library where the same book is on 4 different shelves — so when a librarian grabs you 5 books on a topic, you get 4 copies of the same thing and only one truly different source.</div>
+            <div class="rag-dq-example"><strong>Real impact:</strong> A legal research RAG system has a key case study document indexed 6 times under different filenames. The LLM overweights this single case and misses other relevant precedents, producing a one-sided legal summary.</div>
+          </div>
+        </div>
+        <div class="rag-dq-card" style="border-top:3px solid #1a7a6e;">
+          <div class="rag-dq-header" style="background:#f0fdfb;">
+            <div class="rag-dq-icon">🏷️</div>
+            <div class="rag-dq-title">Poor Metadata &amp; Indexing</div>
+          </div>
+          <div class="rag-dq-body">
+            <div class="rag-dq-what">Documents exist in the knowledge base but have bad titles, wrong tags, or no meaningful description. The retriever searches by keywords and semantic similarity — if a document is poorly labelled, it won't be found, even if it's the perfect answer to the user's question.</div>
+            <div class="rag-dq-analogy">Like a library where every book spine says "Document" with a random number instead of the title and author. You know the answer is in there — but there's no way to find it.</div>
+            <div class="rag-dq-example"><strong>Real impact:</strong> A product manual titled "Manual_FINAL_v3_USE_THIS_ONE.pdf" with no description or keywords. When a customer asks about installation steps, the retriever skips it entirely and the LLM makes up a plausible-sounding but wrong answer — a hallucination.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI Use Cases table - redesigned as cards -->
+      <h3 class="section-title" style="margin-top:28px;">DQ Dimension Impact by AI Use Case</h3>
+      <p style="font-size:13px; color:#475569; margin-bottom:14px;">Each AI use case has different data quality sensitivities. Knowing which dimension matters most helps you prioritise where to invest your DQ effort first.</p>
+      <div class="rag-use-grid">
+        <div class="rag-use-card" style="border-top:3px solid #dc2626;">
+          <div class="rag-use-icon">🔮</div>
+          <div class="rag-use-title">Churn Prediction</div>
+          <div class="rag-use-dim" style="background:#fef2f2; color:#dc2626;">Completeness · Timeliness</div>
+          <div class="rag-use-fail">Early warning signals are invisible if engagement data is missing or stale</div>
+        </div>
+        <div class="rag-use-card" style="border-top:3px solid #d97706;">
+          <div class="rag-use-icon">🕵️</div>
+          <div class="rag-use-title">Fraud Detection</div>
+          <div class="rag-use-dim" style="background:#fffbeb; color:#d97706;">Accuracy · Uniqueness</div>
+          <div class="rag-use-fail">Duplicate customer records inflate false positive rates; inaccurate history hides true patterns</div>
+        </div>
+        <div class="rag-use-card" style="border-top:3px solid #0891b2;">
+          <div class="rag-use-icon">📦</div>
+          <div class="rag-use-title">Demand Forecasting</div>
+          <div class="rag-use-dim" style="background:#ecfeff; color:#0891b2;">Consistency · Timeliness</div>
+          <div class="rag-use-fail">Cross-system inventory mismatches cause stockouts or overstock at scale</div>
+        </div>
+        <div class="rag-use-card" style="border-top:3px solid #7c3aed;">
+          <div class="rag-use-icon">🤖</div>
+          <div class="rag-use-title">RAG / LLM Systems</div>
+          <div class="rag-use-dim" style="background:#f5f3ff; color:#7c3aed;">Accuracy · Freshness</div>
+          <div class="rag-use-fail">Outdated or contradictory documents produce confident hallucinations</div>
+        </div>
+        <div class="rag-use-card" style="border-top:3px solid #1a7a6e;">
+          <div class="rag-use-icon">🎯</div>
+          <div class="rag-use-title">Recommendations</div>
+          <div class="rag-use-dim" style="background:#f0fdfb; color:#1a7a6e;">Completeness · Accuracy</div>
+          <div class="rag-use-fail">Duplicate SKUs and missing user attributes push irrelevant or biased results</div>
+        </div>
+      </div>
 
       <div class="chart-container">
         <div class="chart-title">Impact of Training Data Quality on Model Accuracy</div>
@@ -4089,98 +4621,442 @@ models:
     <section id="ch8" class="chapter">
       <div class="chapter-label">Chapter 08 · Monitoring</div>
       <h2 class="chapter-title">The Data Quality<br><span>Monitoring Process</span></h2>
-      <p>Deploying DQ checks is the beginning, not the end. The monitoring process transforms check results into actionable intelligence by establishing routines for reviewing metrics, investigating anomalies, and escalating issues through defined workflows.</p>
 
-      <!-- DQ Monitoring Cycle SVG -->
+      <style>
+        .mon-intro { background:#f0fdfb; border:1px solid #a7f3d0; border-radius:14px; padding:20px 22px; margin-bottom:24px; }
+        .mon-intro-title { font-size:15px; font-weight:800; color:#0d6b5e; margin-bottom:10px; }
+        .mon-intro-text { font-size:13px; color:#134e4a; line-height:1.75; }
+        .mon-intro-text strong { color:#0d6b5e; }
+        .mon-compare { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:20px 0; }
+        .mon-compare-box { border-radius:12px; padding:16px 18px; }
+        .mon-compare-title { font-size:13px; font-weight:800; margin-bottom:10px; display:flex; align-items:center; gap:8px; }
+        .mon-compare-points { list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:6px; }
+        .mon-compare-points li { font-size:12.5px; line-height:1.55; display:flex; gap:8px; align-items:flex-start; }
+        .cycle-step-cards { display:grid; grid-template-columns:1fr; gap:12px; margin:20px 0; }
+        .cycle-card { display:grid; grid-template-columns:56px 1fr; border-radius:14px; overflow:hidden; border:1px solid #e2e8f0; }
+        .cycle-badge { display:flex; flex-direction:column; align-items:center; justify-content:center; padding:14px 6px; gap:3px; }
+        .cycle-badge-num { font-size:22px; font-weight:900; line-height:1; }
+        .cycle-badge-icon { font-size:16px; }
+        .cycle-body { padding:14px 16px; }
+        .cycle-title { font-size:14px; font-weight:800; color:#0d1b2a; margin-bottom:4px; }
+        .cycle-plain { font-size:12.5px; color:#334155; line-height:1.65; margin-bottom:9px; }
+        .cycle-what { font-size:12px; color:#475569; line-height:1.6; margin-bottom:9px; }
+        .cycle-example { background:#f8fafc; border-radius:8px; padding:9px 12px; font-size:12px; color:#334155; line-height:1.6; border-left:3px solid #4db8ac; }
+        .cycle-example strong { color:#0d6b5e; }
+        .cycle-tip { margin-top:8px; display:flex; gap:7px; align-items:flex-start; background:#fffbeb; border-radius:7px; padding:7px 10px; font-size:11.5px; color:#78350f; line-height:1.55; }
+        .alert-mock { background:white; border:1px solid #e2e8f0; border-radius:14px; overflow:hidden; margin:20px 0; box-shadow:0 2px 12px rgba(0,0,0,0.07); }
+        .alert-mock-bar { padding:10px 16px; font-size:12px; font-weight:700; display:flex; align-items:center; gap:10px; color:white; }
+        .alert-mock-body { padding:14px 16px; }
+        .alert-mock-row { display:flex; gap:10px; margin-bottom:8px; align-items:flex-start; }
+        .alert-mock-label { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:#94a3b8; width:80px; flex-shrink:0; padding-top:2px; }
+        .alert-mock-val { font-size:12.5px; color:#334155; line-height:1.55; font-family:monospace; }
+        .alert-mock-actions { display:flex; gap:8px; margin-top:12px; padding-top:12px; border-top:1px solid #f0f0f0; }
+        .alert-btn { padding:6px 14px; border-radius:20px; font-size:11.5px; font-weight:700; border:none; cursor:pointer; }
+        .blast-wrap { margin:24px 0; overflow-x:auto; }
+        .mon-dashboard-steps { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:16px 0; }
+        .mon-dash-step { background:white; border:1px solid #e2e8f0; border-radius:10px; padding:13px 14px; display:flex; gap:10px; align-items:flex-start; }
+        .mon-dash-num { width:26px; height:26px; border-radius:50%; background:#f0fdfb; border:2px solid #1a7a6e; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:800; color:#1a7a6e; flex-shrink:0; margin-top:1px; }
+        .mon-dash-text { font-size:12.5px; color:#334155; line-height:1.6; }
+        .mon-dash-text strong { color:#0d6b5e; }
+        .checks-table-wrap { margin:16px 0; }
+        .checks-ex-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:16px 0; }
+        .check-ex-card { background:white; border-radius:10px; border:1px solid #e2e8f0; padding:13px 14px; }
+        .check-ex-header { display:flex; align-items:center; gap:8px; margin-bottom:8px; }
+        .check-ex-icon { font-size:18px; }
+        .check-ex-title { font-size:13px; font-weight:700; color:#0d1b2a; }
+        .check-ex-dim { font-size:10px; font-weight:700; text-transform:uppercase; padding:2px 8px; border-radius:10px; margin-left:auto; }
+        .check-ex-what { font-size:12px; color:#475569; line-height:1.6; margin-bottom:8px; }
+        .check-ex-sample { background:#f8fafc; border-radius:7px; padding:8px 10px; font-size:11.5px; font-family:monospace; color:#334155; line-height:1.8; }
+        .check-ex-pass { color:#14532d; } .check-ex-fail { color:#dc2626; font-weight:600; }
+      </style>
+
+      <!-- What is DQ Monitoring? -->
+      <div class="mon-intro">
+        <div class="mon-intro-title">🔍 What is Data Quality Monitoring? (Start Here)</div>
+        <div class="mon-intro-text">
+          Imagine you have a water pipe running through your building. You could wait until water starts dripping through the ceiling to know there's a problem — or you could install sensors that alert you the moment pressure drops abnormally, before any damage happens.<br><br>
+          <strong>Data Quality Monitoring is those sensors for your data.</strong> Instead of waiting for a business analyst to notice a suspicious number in a report, or a customer to complain about a wrong invoice, monitoring systems <em>automatically</em> check your data at every step of the pipeline and alert the right people the moment something goes wrong.<br><br>
+          The goal is simple: <strong>catch data problems before they reach the people who make decisions</strong>. Every hour earlier you catch an issue, you prevent hours of investigation, re-work, and lost business trust.
+        </div>
+      </div>
+
+      <!-- Before vs After visual -->
+      <h3 class="section-title">Without Monitoring vs With Monitoring</h3>
+      <div class="mon-compare">
+        <div class="mon-compare-box" style="background:#fef2f2; border:1px solid #fca5a5;">
+          <div class="mon-compare-title" style="color:#991b1b;">🚒 Without Monitoring — Fighting Fires</div>
+          <ul class="mon-compare-points">
+            <li><span style="color:#dc2626; font-weight:700; flex-shrink:0;">✗</span> A data pipeline silently breaks at 2am. No one knows.</li>
+            <li><span style="color:#dc2626; font-weight:700; flex-shrink:0;">✗</span> At 9am, a sales director opens their dashboard and sees revenue drop 80%.</li>
+            <li><span style="color:#dc2626; font-weight:700; flex-shrink:0;">✗</span> They escalate to the CEO. Panic meeting called.</li>
+            <li><span style="color:#dc2626; font-weight:700; flex-shrink:0;">✗</span> A data engineer spends 4 hours tracing the issue manually.</li>
+            <li><span style="color:#dc2626; font-weight:700; flex-shrink:0;">✗</span> Root cause: a missing date column in an upstream table. A 5-minute fix — after 7 hours of chaos.</li>
+            <li><span style="color:#dc2626; font-weight:700; flex-shrink:0;">✗</span> Trust in data is damaged. Leadership questions every report for weeks.</li>
+          </ul>
+        </div>
+        <div class="mon-compare-box" style="background:#f0fdf4; border:1px solid #86efac;">
+          <div class="mon-compare-title" style="color:#14532d;">✅ With Monitoring — Early Warning System</div>
+          <ul class="mon-compare-points">
+            <li><span style="color:#16a34a; font-weight:700; flex-shrink:0;">✓</span> A pipeline runs at 2am. An automated check detects a NULL date column.</li>
+            <li><span style="color:#16a34a; font-weight:700; flex-shrink:0;">✓</span> At 2:04am, a Slack alert fires to the on-call data engineer.</li>
+            <li><span style="color:#16a34a; font-weight:700; flex-shrink:0;">✓</span> The downstream dashboard is automatically flagged as "stale — do not use".</li>
+            <li><span style="color:#16a34a; font-weight:700; flex-shrink:0;">✓</span> The engineer fixes the pipeline at 7am before business hours.</li>
+            <li><span style="color:#16a34a; font-weight:700; flex-shrink:0;">✓</span> The dashboard refreshes with correct data at 8:45am.</li>
+            <li><span style="color:#16a34a; font-weight:700; flex-shrink:0;">✓</span> The sales director opens their dashboard at 9am and sees accurate numbers. Nothing to report.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Cycle SVG -->
+      <h3 class="section-title">The 6-Step DQ Monitoring Cycle</h3>
+      <p style="font-size:13px; color:#475569; margin-bottom:16px;">Data quality monitoring is not a one-time task — it is a <strong>continuous loop</strong>. Every time a problem is found and fixed, it feeds learning back into better checks and thresholds. This cycle runs every day, automatically.</p>
+
       <div class="illustration-container">
-        <svg viewBox="0 0 440 440" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:400px;margin:0 auto;display:block;">
+        <svg viewBox="0 0 460 460" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:420px;margin:0 auto;display:block;">
           <defs>
-            <marker id="cycleArrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
-              <path d="M0,0 L0,6 L8,3 z" fill="#1a7a6e"/>
+            <marker id="cycleArrow" markerWidth="9" markerHeight="7" refX="7" refY="3.5" orient="auto">
+              <polygon points="0 0, 9 3.5, 0 7" fill="#4db8ac"/>
             </marker>
           </defs>
-          <!-- Circle track -->
-          <circle cx="220" cy="220" r="150" fill="none" stroke="#d4f0ec" stroke-width="24"/>
-          <!-- Center label -->
-          <circle cx="220" cy="220" r="55" fill="#1a7a6e"/>
-          <text x="220" y="215" text-anchor="middle" fill="white" font-size="11" font-weight="bold">CONTINUOUS</text>
-          <text x="220" y="232" text-anchor="middle" fill="white" font-size="11" font-weight="bold">IMPROVEMENT</text>
-          <!-- Step nodes - 6 steps around the circle -->
-          <!-- 1 Detect (top) -->
-          <circle cx="220" cy="60" r="36" fill="#eafaf1" stroke="#27ae60" stroke-width="2"/>
-          <text x="220" y="56" text-anchor="middle" fill="#27ae60" font-size="10" font-weight="bold">1. DETECT</text>
-          <text x="220" y="70" text-anchor="middle" fill="#555" font-size="8">Automated checks</text>
-          <!-- 2 Triage (top-right) -->
-          <circle cx="349" cy="138" r="36" fill="#e8f4fd" stroke="#2980b9" stroke-width="2"/>
-          <text x="349" y="134" text-anchor="middle" fill="#2980b9" font-size="10" font-weight="bold">2. TRIAGE</text>
-          <text x="349" y="148" text-anchor="middle" fill="#555" font-size="8">Assess severity</text>
-          <!-- 3 Investigate (bottom-right) -->
-          <circle cx="349" cy="302" r="36" fill="#fef9e7" stroke="#e67e22" stroke-width="2"/>
-          <text x="349" y="298" text-anchor="middle" fill="#e67e22" font-size="10" font-weight="bold">3. INVESTIGATE</text>
-          <text x="349" y="312" text-anchor="middle" fill="#555" font-size="8">Root cause analysis</text>
-          <!-- 4 Escalate (bottom) -->
-          <circle cx="220" cy="380" r="36" fill="#fdedec" stroke="#c0392b" stroke-width="2"/>
-          <text x="220" y="376" text-anchor="middle" fill="#c0392b" font-size="10" font-weight="bold">4. ESCALATE</text>
-          <text x="220" y="390" text-anchor="middle" fill="#555" font-size="8">Route to owner</text>
-          <!-- 5 Resolve (bottom-left) -->
-          <circle cx="91" cy="302" r="36" fill="#d4f0ec" stroke="#1a7a6e" stroke-width="2"/>
-          <text x="91" y="298" text-anchor="middle" fill="#1a7a6e" font-size="10" font-weight="bold">5. RESOLVE</text>
-          <text x="91" y="312" text-anchor="middle" fill="#555" font-size="8">Fix &amp; validate</text>
-          <!-- 6 Prevent (top-left) -->
-          <circle cx="91" cy="138" r="36" fill="#f3e8ff" stroke="#8b5cf6" stroke-width="2"/>
-          <text x="91" y="134" text-anchor="middle" fill="#8b5cf6" font-size="10" font-weight="bold">6. PREVENT</text>
-          <text x="91" y="148" text-anchor="middle" fill="#555" font-size="8">Post-mortem &amp; learn</text>
+          <!-- Track ring -->
+          <circle cx="230" cy="230" r="155" fill="none" stroke="#e0f8f5" stroke-width="28"/>
+          <!-- Center -->
+          <circle cx="230" cy="230" r="60" fill="#f0fdfb" stroke="#1a7a6e" stroke-width="2"/>
+          <text x="230" y="223" text-anchor="middle" fill="#0d6b5e" font-size="10" font-weight="800">CONTINUOUS</text>
+          <text x="230" y="237" text-anchor="middle" fill="#0d6b5e" font-size="10" font-weight="800">IMPROVEMENT</text>
+          <text x="230" y="251" text-anchor="middle" fill="#4db8ac" font-size="9">↻ Every Day</text>
+          <!-- Arc arrows between nodes (approximate arcs as lines near circle) -->
+          <path d="M 268,77 A 155,155 0 0,1 380,155" fill="none" stroke="#4db8ac" stroke-width="2" marker-end="url(#cycleArrow)"/>
+          <path d="M 382,168 A 155,155 0 0,1 382,292" fill="none" stroke="#4db8ac" stroke-width="2" marker-end="url(#cycleArrow)"/>
+          <path d="M 370,308 A 155,155 0 0,1 268,383" fill="none" stroke="#4db8ac" stroke-width="2" marker-end="url(#cycleArrow)"/>
+          <path d="M 192,383 A 155,155 0 0,1 90,308" fill="none" stroke="#4db8ac" stroke-width="2" marker-end="url(#cycleArrow)"/>
+          <path d="M 78,292 A 155,155 0 0,1 78,168" fill="none" stroke="#4db8ac" stroke-width="2" marker-end="url(#cycleArrow)"/>
+          <path d="M 90,152 A 155,155 0 0,1 192,77" fill="none" stroke="#4db8ac" stroke-width="2" marker-end="url(#cycleArrow)"/>
+          <!-- Node 1 — Detect (top) -->
+          <circle cx="230" cy="68" r="40" fill="#f0fdf4" stroke="#22c55e" stroke-width="2.5"/>
+          <text x="230" y="62" text-anchor="middle" font-size="17">🔔</text>
+          <text x="230" y="76" text-anchor="middle" fill="#15803d" font-size="9.5" font-weight="800">1. DETECT</text>
+          <text x="230" y="89" text-anchor="middle" fill="#166534" font-size="8">Auto checks run</text>
+          <!-- Node 2 — Triage (top-right) -->
+          <circle cx="375" cy="155" r="40" fill="#eff6ff" stroke="#3b82f6" stroke-width="2.5"/>
+          <text x="375" y="149" text-anchor="middle" font-size="17">🔎</text>
+          <text x="375" y="163" text-anchor="middle" fill="#1d4ed8" font-size="9.5" font-weight="800">2. TRIAGE</text>
+          <text x="375" y="176" text-anchor="middle" fill="#1e40af" font-size="8">Assess severity</text>
+          <!-- Node 3 — Investigate (bottom-right) -->
+          <circle cx="375" cy="305" r="40" fill="#fffbeb" stroke="#f59e0b" stroke-width="2.5"/>
+          <text x="375" y="299" text-anchor="middle" font-size="17">🧩</text>
+          <text x="375" y="313" text-anchor="middle" fill="#b45309" font-size="9.5" font-weight="800">3. INVESTIGATE</text>
+          <text x="375" y="326" text-anchor="middle" fill="#92400e" font-size="8">Root cause analysis</text>
+          <!-- Node 4 — Escalate (bottom) -->
+          <circle cx="230" cy="392" r="40" fill="#fef2f2" stroke="#ef4444" stroke-width="2.5"/>
+          <text x="230" y="386" text-anchor="middle" font-size="17">📣</text>
+          <text x="230" y="400" text-anchor="middle" fill="#b91c1c" font-size="9.5" font-weight="800">4. ESCALATE</text>
+          <text x="230" y="413" text-anchor="middle" fill="#991b1b" font-size="8">Route to owner</text>
+          <!-- Node 5 — Resolve (bottom-left) -->
+          <circle cx="85" cy="305" r="40" fill="#f0fdfb" stroke="#1a7a6e" stroke-width="2.5"/>
+          <text x="85" y="299" text-anchor="middle" font-size="17">🔧</text>
+          <text x="85" y="313" text-anchor="middle" fill="#0d6b5e" font-size="9.5" font-weight="800">5. RESOLVE</text>
+          <text x="85" y="326" text-anchor="middle" fill="#134e4a" font-size="8">Fix &amp; validate</text>
+          <!-- Node 6 — Prevent (top-left) -->
+          <circle cx="85" cy="155" r="40" fill="#f5f3ff" stroke="#8b5cf6" stroke-width="2.5"/>
+          <text x="85" y="149" text-anchor="middle" font-size="17">🛡️</text>
+          <text x="85" y="163" text-anchor="middle" fill="#6d28d9" font-size="9.5" font-weight="800">6. PREVENT</text>
+          <text x="85" y="176" text-anchor="middle" fill="#5b21b6" font-size="8">Post-mortem &amp; learn</text>
         </svg>
-        <p class="illustration-caption">Figure 8.1 — The DQ Monitoring Cycle: a continuous, closed-loop process from detection through prevention</p>
+        <p class="illustration-caption">Figure 8.1 — The DQ Monitoring Cycle runs continuously. Each completed loop makes the next cycle faster and smarter.</p>
       </div>
 
-      <h3 class="section-title">The DQ Monitoring Cycle</h3>
-      <p>Effective DQ monitoring follows a continuous improvement cycle:</p>
-      <div class="process-steps">
-        <div class="step"><div class="step-num">1</div><div class="step-content"><div class="step-title">Detect</div><div class="step-desc">Automated checks run after each pipeline execution. Alerts fire when thresholds are breached. DQ analyst receives notification.</div></div></div>
-        <div class="step"><div class="step-num">2</div><div class="step-content"><div class="step-title">Triage</div><div class="step-desc">DQ analyst reviews the alert. Determines severity, affected downstream systems, and likely source of issue.</div></div></div>
-        <div class="step"><div class="step-num">3</div><div class="step-content"><div class="step-title">Investigate</div><div class="step-desc">Deep-dive into failed checks. Review data samples, check lineage, compare to historical baselines.</div></div></div>
-        <div class="step"><div class="step-num">4</div><div class="step-content"><div class="step-title">Escalate</div><div class="step-desc">Route to the appropriate resolver: data engineer for pipeline issues, data steward for source data issues.</div></div></div>
-        <div class="step"><div class="step-num">5</div><div class="step-content"><div class="step-title">Resolve</div><div class="step-desc">Fix is applied, re-validation runs, and results are logged. Issue is closed with root cause documented.</div></div></div>
-        <div class="step"><div class="step-num">6</div><div class="step-content"><div class="step-title">Prevent</div><div class="step-desc">Post-mortem analysis identifies systemic improvements: new checks, better thresholds, process changes.</div></div></div>
+      <!-- Detailed 6-step cards -->
+      <div class="cycle-step-cards">
+
+        <div class="cycle-card" style="border-color:#22c55e;">
+          <div class="cycle-badge" style="background:#f0fdf4;">
+            <div class="cycle-badge-num" style="color:#15803d;">1</div>
+            <div class="cycle-badge-icon">🔔</div>
+          </div>
+          <div class="cycle-body">
+            <div class="cycle-title">Detect — Your Automated Watchman</div>
+            <div class="cycle-plain"><strong>In plain English:</strong> Automated checks run silently in the background every time your data pipelines load new data — like a security system that checks every door and window automatically, without anyone having to remember to do it.</div>
+            <div class="cycle-what"><strong>What actually happens:</strong> After each pipeline run (e.g., overnight ETL, hourly API sync), a suite of pre-defined checks execute against the new data. These checks test things like: are there any NULL values in critical fields? Has the row count dropped unexpectedly? Are all values within expected ranges?</div>
+            <div class="cycle-example"><strong>Example:</strong> Every morning at 6am, after the sales pipeline refreshes, 240 automated checks run across 18 tables. One check finds that <strong>the orders table has 0 rows today</strong> (yesterday it had 4,200). This is flagged immediately — before any analyst opens a report.</div>
+            <div class="cycle-tip">💡 <span><strong>Beginner tip:</strong> Think of this like a spell-checker that runs on your data automatically. You don't have to manually read every sentence — it highlights problems for you to review.</span></div>
+          </div>
+        </div>
+
+        <div class="cycle-card" style="border-color:#3b82f6;">
+          <div class="cycle-badge" style="background:#eff6ff;">
+            <div class="cycle-badge-num" style="color:#1d4ed8;">2</div>
+            <div class="cycle-badge-icon">🔎</div>
+          </div>
+          <div class="cycle-body">
+            <div class="cycle-title">Triage — Is This Actually a Problem?</div>
+            <div class="cycle-plain"><strong>In plain English:</strong> Not every alert is an emergency. Triage is the process of quickly classifying how serious an issue is — like a hospital A&amp;E nurse who sees 30 patients at once and decides who needs immediate care versus who can wait.</div>
+            <div class="cycle-what"><strong>What actually happens:</strong> A DQ analyst (or an automated system) looks at the failing check and asks: How many rows are affected? Which downstream reports or dashboards depend on this data? Is this a real data problem or a known acceptable variation? How urgent is the business impact?</div>
+            <div class="cycle-example"><strong>Example:</strong> The 0-row orders table alert arrives. The analyst checks: Is today a bank holiday? No. Did the source system go offline? Checking... yes — the CRM API timed out at 5:52am. This is a <strong>P1 Critical</strong> issue. Downstream: revenue dashboard, CEO weekly report, finance reconciliation. Escalate immediately.</div>
+            <div class="cycle-tip">💡 <span><strong>Beginner tip:</strong> Triage is about making a fast decision: "Do I need to wake someone up right now, or can this wait until tomorrow's standup?" Getting this wrong in either direction causes problems — too many urgent alerts causes fatigue; too few means problems are missed.</span></div>
+          </div>
+        </div>
+
+        <div class="cycle-card" style="border-color:#f59e0b;">
+          <div class="cycle-badge" style="background:#fffbeb;">
+            <div class="cycle-badge-num" style="color:#b45309;">3</div>
+            <div class="cycle-badge-icon">🧩</div>
+          </div>
+          <div class="cycle-body">
+            <div class="cycle-title">Investigate — Finding the Root Cause</div>
+            <div class="cycle-plain"><strong>In plain English:</strong> Once you know there's a problem and how serious it is, you need to find out <em>why</em> it happened. This is detective work — tracing the issue back to its origin, not just treating the symptom.</div>
+            <div class="cycle-what"><strong>What actually happens:</strong> The engineer looks at data lineage (which systems feed this table), compares today's data to yesterday's baseline, checks pipeline logs for errors, looks at sample bad rows to spot a pattern, and asks upstream teams if anything changed.</div>
+            <div class="cycle-example"><strong>Example:</strong> Investigating the 0-row orders issue: The data engineer checks pipeline logs → finds a "Connection timeout" error at 5:52am → checks the CRM API status page → the API had a 2-hour outage → the pipeline retry logic was set to 1 retry (should be 3) → root cause identified: <strong>insufficient retry configuration, not a data issue</strong>. Fix is in the pipeline config, not the data itself.</div>
+            <div class="cycle-tip">💡 <span><strong>Beginner tip:</strong> Always ask "why did this happen?" five times (the "5 Whys" technique). Stopping at the first answer usually means you're treating a symptom. The zero rows weren't the root cause — the API timeout wasn't the root cause — the misconfigured retry was the root cause.</span></div>
+          </div>
+        </div>
+
+        <div class="cycle-card" style="border-color:#ef4444;">
+          <div class="cycle-badge" style="background:#fef2f2;">
+            <div class="cycle-badge-num" style="color:#b91c1c;">4</div>
+            <div class="cycle-badge-icon">📣</div>
+          </div>
+          <div class="cycle-body">
+            <div class="cycle-title">Escalate — Getting the Right People Involved</div>
+            <div class="cycle-plain"><strong>In plain English:</strong> Some issues can be fixed by the data team alone. Others need the source system team, the business owner, or even executives to be informed. Escalation means routing the problem to whoever has the authority and knowledge to fix it — with the right level of urgency.</div>
+            <div class="cycle-what"><strong>What actually happens:</strong> Based on the triage severity and root cause, the issue is assigned to the right resolver with a clear description: what failed, what the impact is, what the root cause appears to be, and what action is needed. A P1 issue goes to the on-call engineer and the business owner immediately. A P3 issue goes into the team backlog.</div>
+            <div class="cycle-example"><strong>Example:</strong> The orders pipeline issue is escalated to: (1) the CRM vendor's support team to report the API outage, (2) the data engineering team to fix the retry configuration, (3) the Head of Sales via Slack to inform them the revenue dashboard will be delayed by 2 hours, (4) the finance team to pause the morning reconciliation run.</div>
+            <div class="cycle-tip">💡 <span><strong>Beginner tip:</strong> Good escalation means communicating three things: "Here's what broke, here's who is affected, here's what we're doing about it." Vague escalations ("data is wrong") cause panic. Clear escalations ("orders table has 0 rows due to a CRM API outage, estimated fix by 9am") allow people to plan.</span></div>
+          </div>
+        </div>
+
+        <div class="cycle-card" style="border-color:#1a7a6e;">
+          <div class="cycle-badge" style="background:#f0fdfb;">
+            <div class="cycle-badge-num" style="color:#0d6b5e;">5</div>
+            <div class="cycle-badge-icon">🔧</div>
+          </div>
+          <div class="cycle-body">
+            <div class="cycle-title">Resolve — Fix It, Prove It's Fixed</div>
+            <div class="cycle-plain"><strong>In plain English:</strong> Apply the fix, then <em>verify the fix worked</em> by re-running the checks that originally failed. Never close an issue by assumption — always close it with evidence. Log what was done so the next person doesn't have to investigate the same issue from scratch.</div>
+            <div class="cycle-what"><strong>What actually happens:</strong> The engineer applies the fix (code change, data correction, pipeline re-run). The failed DQ checks are re-executed. If they pass, the incident is closed with a written resolution note. If they fail again, investigation continues. Downstream systems are un-flagged and business users are notified that data is correct.</div>
+            <div class="cycle-example"><strong>Example:</strong> The retry config is updated from 1 to 3 retries. The pipeline is manually re-triggered and runs successfully. The orders table now shows 4,187 rows (slightly fewer than yesterday — normal variation). All 240 checks pass. The revenue dashboard updates at 9:15am. The incident is closed with note: "CRM API outage caused pipeline failure. Retry config updated to prevent recurrence."</div>
+            <div class="cycle-tip">💡 <span><strong>Beginner tip:</strong> "I think it's fixed" is not the same as "the checks are passing again." Always re-run the checks. This protects you, documents the resolution, and builds the evidence trail that shows your monitoring is working.</span></div>
+          </div>
+        </div>
+
+        <div class="cycle-card" style="border-color:#8b5cf6;">
+          <div class="cycle-badge" style="background:#f5f3ff;">
+            <div class="cycle-badge-num" style="color:#6d28d9;">6</div>
+            <div class="cycle-badge-icon">🛡️</div>
+          </div>
+          <div class="cycle-body">
+            <div class="cycle-title">Prevent — Learn So It Doesn't Happen Again</div>
+            <div class="cycle-plain"><strong>In plain English:</strong> Every incident is a learning opportunity. After resolution, the team asks: "What can we put in place so this either doesn't happen again, or is caught faster next time?" This is what separates a reactive team from a proactive one.</div>
+            <div class="cycle-what"><strong>What actually happens:</strong> A short post-mortem is written for all P1/P2 incidents. The team identifies: Was there a check we should have had but didn't? Should the alert threshold be lower? Was the escalation path unclear? Should retry logic be standardised? New checks or process improvements are added to the backlog.</div>
+            <div class="cycle-example"><strong>Example:</strong> Post-mortem action items from the orders incident: (1) Add a check that fires if orders table row count is 0 at any time (not just after pipeline run). (2) Standardise retry configuration across all CRM-dependent pipelines. (3) Add a "dashboard status" flag that auto-shows a warning banner when data is stale. <strong>Three improvements from one incident.</strong></div>
+            <div class="cycle-tip">💡 <span><strong>Beginner tip:</strong> High-maturity data teams treat every incident as a gift — it tells them exactly where their monitoring had a blind spot. Teams that skip this step fix the same issues over and over. Teams that do this step get faster and smarter with every cycle.</span></div>
+          </div>
+        </div>
+
       </div>
 
-      <h3 class="section-title">DQ.7 · Checking KPIs on Dashboards</h3>
-      <p>The daily DQ monitoring routine should begin with a dashboard review. Key questions to answer each morning:</p>
-      <ul class="checklist">
-        <li>Are all Tier 1 and Tier 2 pipelines showing green status?</li>
-        <li>Have any DQ scores dropped more than 5% since yesterday?</li>
-        <li>Are there any open critical or high-severity issues from the previous day?</li>
-        <li>Are freshness SLAs being met for all business-critical tables?</li>
-        <li>Are any trends suggesting gradual quality degradation?</li>
-      </ul>
+      <!-- What a real alert looks like -->
+      <h3 class="section-title">What a Real DQ Alert Looks Like</h3>
+      <p style="font-size:13px; color:#475569; margin-bottom:14px;">When a check fails, a structured alert is sent to the right people. Here is what a well-designed DQ alert message looks like — with all the information needed to act immediately, without digging through logs:</p>
 
-      <h3 class="section-title">DQ.8 · Identifying Affected Tables</h3>
-      <p>When an alert fires, the first priority is understanding the blast radius — which tables are affected and which downstream processes or reports rely on them. Use data lineage tools to map dependencies quickly.</p>
+      <div class="alert-mock">
+        <div class="alert-mock-bar" style="background:#dc2626;">
+          🚨 &nbsp;<span>P1 CRITICAL — Data Quality Alert</span><span style="margin-left:auto; font-size:11px; opacity:0.85;">Today 06:04 · #data-alerts-critical</span>
+        </div>
+        <div class="alert-mock-body">
+          <div class="alert-mock-row"><div class="alert-mock-label">Check</div><div class="alert-mock-val" style="color:#dc2626; font-weight:700;">fct_orders · Row Count · Expected ≥ 100 · Got 0</div></div>
+          <div class="alert-mock-row"><div class="alert-mock-label">Table</div><div class="alert-mock-val">prod.fct_orders</div></div>
+          <div class="alert-mock-row"><div class="alert-mock-label">Time</div><div class="alert-mock-val">2025-03-06 06:02 UTC · Pipeline: crm_orders_daily</div></div>
+          <div class="alert-mock-row"><div class="alert-mock-label">Impact</div><div class="alert-mock-val" style="color:#b45309;">Revenue Dashboard · CEO Weekly Report · Finance Reconciliation (3 downstream)</div></div>
+          <div class="alert-mock-row"><div class="alert-mock-label">Owner</div><div class="alert-mock-val">@data-engineering · Escalate to: @sarah.jones (Head of Sales) if not resolved by 08:00</div></div>
+          <div class="alert-mock-row"><div class="alert-mock-label">History</div><div class="alert-mock-val" style="color:#16a34a;">✓ This check passed for the previous 47 consecutive runs</div></div>
+          <div class="alert-mock-actions">
+            <button class="alert-btn" style="background:#fef2f2; color:#dc2626; border:1px solid #fca5a5;">🔍 View Failed Check</button>
+            <button class="alert-btn" style="background:#eff6ff; color:#1d4ed8; border:1px solid #93c5fd;">📊 View Lineage</button>
+            <button class="alert-btn" style="background:#f0fdf4; color:#15803d; border:1px solid #86efac;">✓ Acknowledge</button>
+          </div>
+        </div>
+      </div>
+      <p style="font-size:11.5px; color:#94a3b8; text-align:center; margin-top:6px;">A good alert tells you: what broke, where, when, who owns it, what is affected downstream, and the historical pass record.</p>
 
-      <div class="code-block" data-lang="SQL">
-<code><span class="cm">-- Find all checks that failed in the last 24 hours</span>
-<span class="kw">SELECT</span>
-    table_name,
-    check_type,
-    dimension,
-    result_value,
-    threshold,
-    severity,
-    run_timestamp,
-    rows_failed,
-    <span class="fn">ROUND</span>(rows_failed * <span class="num">100.0</span> / rows_scanned, <span class="num">2</span>) <span class="kw">AS</span> failure_rate_pct
-<span class="kw">FROM</span> dq_monitoring.check_results
-<span class="kw">WHERE</span> passed = <span class="kw">FALSE</span>
-    <span class="kw">AND</span> run_timestamp >= <span class="fn">DATEADD</span>(hour, -<span class="num">24</span>, <span class="fn">CURRENT_TIMESTAMP</span>())
-<span class="kw">ORDER BY</span>
-    <span class="kw">CASE</span> severity <span class="kw">WHEN</span> <span class="str">'CRITICAL'</span> <span class="kw">THEN</span> <span class="num">1</span> <span class="kw">WHEN</span> <span class="str">'HIGH'</span> <span class="kw">THEN</span> <span class="num">2</span> <span class="kw">ELSE</span> <span class="num">3</span> <span class="kw">END</span>,
-    run_timestamp <span class="kw">DESC</span>;</code>
+      <!-- Blast Radius -->
+      <h3 class="section-title">Understanding Blast Radius — Why Early Detection Matters</h3>
+      <p style="font-size:13px; color:#475569; margin-bottom:14px;">When a source table has bad data, the damage doesn't stay there — it flows <em>downstream</em> and corrupts everything that depends on it. This is called the <strong>blast radius</strong>. The further downstream a problem travels before being caught, the more expensive it is to fix.</p>
+
+      <div class="blast-wrap">
+        <svg viewBox="0 0 740 240" xmlns="http://www.w3.org/2000/svg" style="width:100%; min-width:580px; max-height:240px;">
+          <defs>
+            <marker id="blarr" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+              <polygon points="0 0,8 3,0 6" fill="#94a3b8"/>
+            </marker>
+            <marker id="blarrred" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+              <polygon points="0 0,8 3,0 6" fill="#fca5a5"/>
+            </marker>
+          </defs>
+          <!-- Title -->
+          <text x="370" y="18" text-anchor="middle" fill="#0d1b2a" font-size="11.5" font-weight="800">Blast Radius — How One Bad Source Table Corrupts Downstream Systems</text>
+          <!-- Source Table (bad) -->
+          <rect x="10" y="90" width="110" height="60" rx="9" fill="#fef2f2" stroke="#ef4444" stroke-width="2"/>
+          <text x="65" y="113" text-anchor="middle" font-size="15">🗄️</text>
+          <text x="65" y="129" text-anchor="middle" fill="#dc2626" font-size="9" font-weight="700">CRM Orders</text>
+          <text x="65" y="142" text-anchor="middle" fill="#ef4444" font-size="8">❌ 0 rows loaded</text>
+          <!-- Arrow to transform -->
+          <line x1="122" y1="120" x2="155" y2="120" stroke="#fca5a5" stroke-width="2" marker-end="url(#blarrred)"/>
+          <!-- Transform layer -->
+          <rect x="157" y="90" width="110" height="60" rx="9" fill="#fef2f2" stroke="#fca5a5" stroke-width="1.5"/>
+          <text x="212" y="113" text-anchor="middle" font-size="15">⚙️</text>
+          <text x="212" y="129" text-anchor="middle" fill="#b45309" font-size="9" font-weight="700">fct_orders</text>
+          <text x="212" y="142" text-anchor="middle" fill="#dc2626" font-size="8">❌ Incomplete data</text>
+          <!-- Arrows fanning out -->
+          <line x1="269" y1="108" x2="310" y2="60" stroke="#fca5a5" stroke-width="1.5" marker-end="url(#blarrred)"/>
+          <line x1="269" y1="120" x2="310" y2="120" stroke="#fca5a5" stroke-width="1.5" marker-end="url(#blarrred)"/>
+          <line x1="269" y1="132" x2="310" y2="180" stroke="#fca5a5" stroke-width="1.5" marker-end="url(#blarrred)"/>
+          <!-- Three downstream boxes -->
+          <rect x="312" y="32" width="130" height="50" rx="8" fill="#fef2f2" stroke="#fca5a5" stroke-width="1.5"/>
+          <text x="377" y="53" text-anchor="middle" fill="#dc2626" font-size="9" font-weight="700">📊 Revenue Dashboard</text>
+          <text x="377" y="67" text-anchor="middle" fill="#991b1b" font-size="8">Shows £0 revenue ← Wrong!</text>
+          <rect x="312" y="94" width="130" height="50" rx="8" fill="#fef2f2" stroke="#fca5a5" stroke-width="1.5"/>
+          <text x="377" y="115" text-anchor="middle" fill="#dc2626" font-size="9" font-weight="700">🤖 Demand Forecast Model</text>
+          <text x="377" y="129" text-anchor="middle" fill="#991b1b" font-size="8">Predicts zero demand ← Wrong!</text>
+          <rect x="312" y="156" width="130" height="50" rx="8" fill="#fef2f2" stroke="#fca5a5" stroke-width="1.5"/>
+          <text x="377" y="177" text-anchor="middle" fill="#dc2626" font-size="9" font-weight="700">💰 Finance Reconciliation</text>
+          <text x="377" y="191" text-anchor="middle" fill="#991b1b" font-size="8">Missing £180K ← Wrong!</text>
+          <!-- Arrows to final layer -->
+          <line x1="444" y1="57" x2="480" y2="80" stroke="#fca5a5" stroke-width="1.5" marker-end="url(#blarrred)"/>
+          <line x1="444" y1="119" x2="480" y2="119" stroke="#fca5a5" stroke-width="1.5" marker-end="url(#blarrred)"/>
+          <line x1="444" y1="181" x2="480" y2="158" stroke="#fca5a5" stroke-width="1.5" marker-end="url(#blarrred)"/>
+          <!-- Business decisions -->
+          <rect x="482" y="60" width="248" height="100" rx="10" fill="#fff8f0" stroke="#fed7aa" stroke-width="2"/>
+          <text x="606" y="84" text-anchor="middle" fill="#92400e" font-size="10" font-weight="800">💥 Business Impact</text>
+          <text x="606" y="101" text-anchor="middle" fill="#b45309" font-size="9">CEO sees £0 revenue → emergency meeting called</text>
+          <text x="606" y="116" text-anchor="middle" fill="#b45309" font-size="9">Procurement over-orders stock based on bad forecast</text>
+          <text x="606" y="131" text-anchor="middle" fill="#b45309" font-size="9">Finance reports wrong numbers to auditors</text>
+          <text x="606" y="146" text-anchor="middle" fill="#dc2626" font-size="9" font-weight="700">All caused by ONE empty table — caught too late</text>
+          <!-- Catch early label -->
+          <rect x="10" y="168" width="255" height="26" rx="8" fill="#f0fdf4" stroke="#86efac" stroke-width="1.5"/>
+          <text x="137" y="185" text-anchor="middle" fill="#15803d" font-size="9" font-weight="700">✅ Catch here (at source) → 5 minute fix, zero business impact</text>
+        </svg>
+      </div>
+
+      <!-- Daily morning dashboard review -->
+      <h3 class="section-title">The Daily DQ Monitoring Routine</h3>
+      <p style="font-size:13px; color:#475569; margin-bottom:14px;">For a DQ analyst or data engineer, monitoring is a daily habit — not a reaction to crises. Here is what a structured morning review looks like:</p>
+
+      <div class="mon-dashboard-steps">
+        <div class="mon-dash-step">
+          <div class="mon-dash-num">1</div>
+          <div class="mon-dash-text"><strong>Check overnight alert inbox</strong> — Did any P1 or P2 alerts fire during off-hours? Were they acknowledged and resolved before business hours?</div>
+        </div>
+        <div class="mon-dash-step">
+          <div class="mon-dash-num">2</div>
+          <div class="mon-dash-text"><strong>Review the DQ dashboard</strong> — Are all Tier 1 tables showing green status? Has any dimension score (completeness, freshness) dropped more than 5% since yesterday?</div>
+        </div>
+        <div class="mon-dash-step">
+          <div class="mon-dash-num">3</div>
+          <div class="mon-dash-text"><strong>Check freshness SLAs</strong> — Did all pipelines complete within their expected windows? A pipeline that "ran but ran late" can still fail a freshness check.</div>
+        </div>
+        <div class="mon-dash-step">
+          <div class="mon-dash-num">4</div>
+          <div class="mon-dash-text"><strong>Review open issue backlog</strong> — Are there any P1/P2 issues still open from previous days? Any issues that have aged beyond their SLA response time?</div>
+        </div>
+        <div class="mon-dash-step">
+          <div class="mon-dash-num">5</div>
+          <div class="mon-dash-text"><strong>Spot gradual trends</strong> — Is completeness in the customer table slowly declining week-over-week? Gradual degradation is harder to catch than sudden drops.</div>
+        </div>
+        <div class="mon-dash-step">
+          <div class="mon-dash-num">6</div>
+          <div class="mon-dash-text"><strong>Update stakeholders</strong> — Send a brief status note to data owners: "All tables healthy ✅" or "One P2 open — being resolved by EOD." Proactive communication builds trust.</div>
+        </div>
+      </div>
+
+      <!-- Common checks -->
+      <h3 class="section-title">Common DQ Checks — What They Catch &amp; Why They Matter</h3>
+      <p style="font-size:13px; color:#475569; margin-bottom:14px;">Here are examples of the most common automated checks used in practice, with plain-English explanations of what they catch:</p>
+
+      <div class="checks-ex-grid">
+        <div class="check-ex-card">
+          <div class="check-ex-header">
+            <div class="check-ex-icon">🕳️</div>
+            <div class="check-ex-title">NULL Check</div>
+            <span class="check-ex-dim" style="background:#f0fdf4; color:#15803d;">Completeness</span>
+          </div>
+          <div class="check-ex-what">Checks that important fields are not empty. A customer record with no email address, or an order with no amount, is incomplete and will break downstream processes.</div>
+          <div class="check-ex-sample">
+            <span class="check-ex-pass">✓ PASS: customer_email = "jane@example.com"</span><br>
+            <span class="check-ex-fail">✗ FAIL: customer_email = NULL (1,240 rows)</span><br>
+            <span style="color:#64748b;">→ Alert: 3.2% null rate exceeds 1% threshold</span>
+          </div>
+        </div>
+        <div class="check-ex-card">
+          <div class="check-ex-header">
+            <div class="check-ex-icon">👥</div>
+            <div class="check-ex-title">Uniqueness Check</div>
+            <span class="check-ex-dim" style="background:#eff6ff; color:#1d4ed8;">Uniqueness</span>
+          </div>
+          <div class="check-ex-what">Checks that values that should be unique (like customer IDs or order numbers) don't appear more than once. Duplicates cause double-counting in reports and inflate metrics.</div>
+          <div class="check-ex-sample">
+            <span class="check-ex-pass">✓ PASS: order_id = "ORD-4421" appears once</span><br>
+            <span class="check-ex-fail">✗ FAIL: order_id "ORD-4421" appears 3 times</span><br>
+            <span style="color:#64748b;">→ Alert: 847 duplicate order_ids found</span>
+          </div>
+        </div>
+        <div class="check-ex-card">
+          <div class="check-ex-header">
+            <div class="check-ex-icon">📏</div>
+            <div class="check-ex-title">Range / Boundary Check</div>
+            <span class="check-ex-dim" style="background:#fffbeb; color:#b45309;">Validity</span>
+          </div>
+          <div class="check-ex-what">Checks that numeric values fall within expected bounds. A discount of 150%, a customer age of 312, or a negative order quantity are all technically valid numbers but clearly wrong.</div>
+          <div class="check-ex-sample">
+            <span class="check-ex-pass">✓ PASS: discount_pct = 15 (within 0–100)</span><br>
+            <span class="check-ex-fail">✗ FAIL: discount_pct = 150 (exceeds 100%)</span><br>
+            <span style="color:#64748b;">→ Alert: 23 rows with discount > 100%</span>
+          </div>
+        </div>
+        <div class="check-ex-card">
+          <div class="check-ex-header">
+            <div class="check-ex-icon">⏱️</div>
+            <div class="check-ex-title">Freshness Check</div>
+            <span class="check-ex-dim" style="background:#fef2f2; color:#dc2626;">Timeliness</span>
+          </div>
+          <div class="check-ex-what">Checks that data is up to date. A sales dashboard showing yesterday's numbers as "today" because the pipeline failed silently — without a freshness check, no one would know.</div>
+          <div class="check-ex-sample">
+            <span class="check-ex-pass">✓ PASS: max(loaded_at) = today 06:02 UTC</span><br>
+            <span class="check-ex-fail">✗ FAIL: max(loaded_at) = yesterday 06:05 UTC</span><br>
+            <span style="color:#64748b;">→ Alert: Table is 24h stale, SLA = 6h</span>
+          </div>
+        </div>
+        <div class="check-ex-card">
+          <div class="check-ex-header">
+            <div class="check-ex-icon">📊</div>
+            <div class="check-ex-title">Row Count / Volume Check</div>
+            <span class="check-ex-dim" style="background:#f0fdfb; color:#0d6b5e;">Completeness</span>
+          </div>
+          <div class="check-ex-what">Checks that the table received approximately the expected number of rows. A sudden drop (pipeline failure) or spike (duplicate load) in row count is a strong signal something went wrong.</div>
+          <div class="check-ex-sample">
+            <span class="check-ex-pass">✓ PASS: row_count = 4,187 (baseline ~4,200)</span><br>
+            <span class="check-ex-fail">✗ FAIL: row_count = 0 (expected ~4,200)</span><br>
+            <span style="color:#64748b;">→ Alert: 100% drop from yesterday baseline</span>
+          </div>
+        </div>
+        <div class="check-ex-card">
+          <div class="check-ex-header">
+            <div class="check-ex-icon">🔗</div>
+            <div class="check-ex-title">Referential Integrity Check</div>
+            <span class="check-ex-dim" style="background:#f5f3ff; color:#6d28d9;">Consistency</span>
+          </div>
+          <div class="check-ex-what">Checks that values in one table actually exist in the related table. An order for a product that doesn't exist in the products table, or a transaction for a customer that doesn't exist in the customers table, is an orphaned record.</div>
+          <div class="check-ex-sample">
+            <span class="check-ex-pass">✓ PASS: order.product_id exists in products</span><br>
+            <span class="check-ex-fail">✗ FAIL: 312 orders link to deleted product IDs</span><br>
+            <span style="color:#64748b;">→ Alert: 312 orphaned records found</span>
+          </div>
+        </div>
       </div>
 
       <div class="chart-container">
         <div class="chart-title">DQ Check Results — Last 30 Days</div>
-        <div class="chart-subtitle">Pass rate by day across all monitored tables</div>
+        <div class="chart-subtitle">Pass rate by day across all monitored tables — a healthy programme stays above 95%</div>
         <div class="chart-wrapper"><canvas id="monitoringChart"></canvas></div>
       </div>
     </section>
@@ -5039,42 +5915,442 @@ models:
     <section id="ch20" class="chapter">
       <div class="chapter-label">Chapter 20 · Advanced</div>
       <h2 class="chapter-title">DQ Maturity Model<br>&amp; <span>Roadmap</span></h2>
-      <p>A Data Quality Maturity Model provides a structured framework for assessing where your organization currently stands and charting a path toward higher levels of DQ capability. Most organizations find themselves at Level 1 or 2 — and reaching Level 4 or 5 represents a multi-year journey.</p>
 
-      <h3 class="section-title">The Five Levels of DQ Maturity</h3>
-      <div class="framework-layers">
-        <div class="layer" style="background:linear-gradient(135deg,var(--gold),#f5c842); color:var(--navy); border-left:4px solid var(--navy);">
-          <div class="layer-num" style="background:var(--navy); color:var(--gold); font-weight:900;">5</div>
-          <div class="layer-info"><h5 style="color:var(--navy); font-weight:900;">⭐ Optimized</h5><p style="color:rgba(0,0,0,0.75);">AI-driven anomaly detection, self-healing pipelines, DQ as a competitive differentiator, predictive quality</p></div>
+      <style>
+        .mat-level-grid { display:grid; grid-template-columns:1fr; gap:0; margin:24px 0; border-radius:16px; overflow:hidden; border:1px solid #e2e8f0; box-shadow:0 2px 12px rgba(0,0,0,0.06); }
+        .mat-level-card { display:grid; grid-template-columns:78px 1fr; background:white; border-bottom:1px solid #e2e8f0; }
+        .mat-level-card:last-child { border-bottom:none; }
+        .mat-level-badge { display:flex; flex-direction:column; align-items:center; justify-content:center; padding:18px 8px; gap:3px; }
+        .mat-level-num { font-size:30px; font-weight:900; line-height:1; }
+        .mat-level-pct { font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:0.4px; opacity:0.85; text-align:center; }
+        .mat-level-body { padding:18px 20px 18px 16px; }
+        .mat-level-name { font-size:15px; font-weight:800; margin-bottom:4px; }
+        .mat-level-tagline { font-size:12px; color:#64748b; margin-bottom:12px; font-style:italic; }
+        .mat-indicators { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px; }
+        .mat-ind-box { background:#f8fafc; border-radius:8px; padding:9px 11px; }
+        .mat-ind-label { font-size:9.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:#94a3b8; margin-bottom:4px; }
+        .mat-ind-text { font-size:12px; color:#334155; line-height:1.55; }
+        .mat-quote { background:#fffbeb; border-left:3px solid #f59e0b; padding:10px 14px; border-radius:0 8px 8px 0; font-size:11.5px; font-style:italic; color:#78350f; line-height:1.55; }
+        .assess-wrap { overflow-x:auto; margin:16px 0; }
+        .assess-grid { width:100%; border-collapse:collapse; font-size:11.5px; min-width:700px; }
+        .assess-grid th { background:#f0fdfb; color:#1a7a6e; font-weight:700; padding:10px 11px; text-align:center; border:1px solid #d1fae5; font-size:11px; }
+        .assess-grid th:first-child { text-align:left; background:#e8f9f6; }
+        .assess-grid td { padding:9px 11px; border:1px solid #e2e8f0; vertical-align:top; line-height:1.5; }
+        .assess-grid tr:nth-child(even) td { background:#fafbfc; }
+        .assess-grid td:first-child { font-weight:700; color:#334155; background:#f8fafc; font-size:12px; }
+        .ac1{color:#94a3b8;} .ac2{color:#64748b;} .ac3{color:#0d6b5e;} .ac4{color:#1a7a6e;font-weight:600;} .ac5{color:#b45309;font-weight:700;}
+        .rm-phases { margin:28px 0; }
+        .rm-phase { display:grid; grid-template-columns:88px 1fr; margin-bottom:6px; align-items:stretch; }
+        .rm-spine { display:flex; flex-direction:column; align-items:center; }
+        .rm-node { width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:13px; flex-shrink:0; z-index:1; position:relative; }
+        .rm-vline { width:3px; flex:1; min-height:16px; }
+        .rm-card { background:white; border:1px solid #e2e8f0; border-radius:14px; padding:18px 20px; margin-bottom:6px; }
+        .rm-phase-tag { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.6px; margin-bottom:3px; }
+        .rm-phase-title { font-size:17px; font-weight:800; color:#0d1b2a; margin-bottom:6px; }
+        .rm-phase-desc { font-size:13px; color:#475569; margin-bottom:14px; line-height:1.65; }
+        .rm-deliverables { display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-bottom:14px; }
+        .rm-del { background:#f1f5f9; border-radius:7px; padding:8px 10px; font-size:12px; color:#334155; display:flex; align-items:flex-start; gap:6px; line-height:1.5; }
+        .rm-del-arrow { color:#1a7a6e; font-weight:700; flex-shrink:0; margin-top:1px; }
+        .rm-outcomes { display:flex; gap:10px; flex-wrap:wrap; }
+        .rm-outcome-pill { background:#f0fdfb; border:1px solid #a7f3d0; border-radius:20px; padding:6px 14px; font-size:12px; font-weight:600; color:#0d6b5e; }
+        .rm-maturity-jump { display:inline-flex; align-items:center; gap:6px; background:#fffbeb; border:1px solid #fcd34d; border-radius:8px; padding:7px 12px; font-size:12px; font-weight:700; color:#92400e; margin-top:10px; }
+        .journey-wrap { background:#f8fafc; border-radius:16px; padding:24px; margin:20px 0; border:1px solid #e2e8f0; }
+        .journey-header { display:flex; align-items:center; gap:14px; margin-bottom:22px; }
+        .journey-icon { width:48px; height:48px; border-radius:12px; background:#1a7a6e; display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0; }
+        .journey-steps { display:grid; grid-template-columns:repeat(4,1fr); gap:0; position:relative; margin-bottom:20px; }
+        .journey-connector { position:absolute; top:19px; left:12.5%; right:12.5%; height:3px; background:linear-gradient(90deg,#e2e8f0 0%,#4db8ac 50%,#e2e8f0 100%); z-index:0; }
+        .journey-step { text-align:center; position:relative; z-index:1; }
+        .journey-dot { width:40px; height:40px; border-radius:50%; margin:0 auto 10px; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:14px; border:3px solid white; box-shadow:0 2px 8px rgba(0,0,0,0.12); }
+        .journey-period { font-size:9.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:#94a3b8; margin-bottom:3px; }
+        .journey-milestone { font-size:12px; font-weight:700; color:#334155; margin-bottom:5px; }
+        .journey-detail { font-size:11px; color:#64748b; line-height:1.5; }
+        .journey-metrics { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:16px; }
+        .journey-metric { background:white; border-radius:10px; padding:14px; text-align:center; border:1px solid #e2e8f0; }
+        .journey-metric-val { font-size:22px; font-weight:900; color:#1a7a6e; line-height:1; margin-bottom:4px; }
+        .journey-metric-lbl { font-size:10.5px; color:#64748b; line-height:1.4; }
+        .bench-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:14px; margin:20px 0; }
+        .bench-card { border-radius:14px; padding:18px 20px; border:1px solid #e2e8f0; }
+        .bench-header { display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+        .bench-icon { font-size:22px; }
+        .bench-industry { font-size:14px; font-weight:800; color:#0d1b2a; }
+        .bench-avg { font-size:11px; color:#64748b; }
+        .bench-bar-wrap { margin-bottom:8px; }
+        .bench-bar-label { display:flex; justify-content:space-between; font-size:11px; color:#64748b; margin-bottom:4px; }
+        .bench-bar-track { background:#e2e8f0; border-radius:10px; height:10px; overflow:hidden; }
+        .bench-bar-fill { height:100%; border-radius:10px; }
+        .bench-note { font-size:11px; color:#64748b; font-style:italic; margin-top:10px; line-height:1.5; border-top:1px solid #f0f0f0; padding-top:8px; }
+      </style>
+
+      <p>A Data Quality Maturity Model provides a structured framework for assessing where your organization currently stands and charting a path toward higher levels of DQ capability. Most organizations find themselves at Level 1 or 2 — reaching Level 4 represents a genuine multi-year journey of deliberate investment, cultural change, and technical capability building.</p>
+
+      <div class="key-insight">
+        <strong>Industry Reality Check:</strong> According to Gartner (2024), only <strong>8% of organizations</strong> reach Level 4 maturity, while <strong>47%</strong> are still at Level 1 — reactive, undocumented, and dependent on individual heroics rather than systematic process. The cost difference between Level 1 and Level 3 organizations averages <strong>$6.2M per year</strong> in avoided data incidents.
+      </div>
+
+      <h3 class="section-title">The Five Levels of DQ Maturity — In Depth</h3>
+
+      <div class="mat-level-grid">
+        <!-- Level 5 -->
+        <div class="mat-level-card">
+          <div class="mat-level-badge" style="background:linear-gradient(160deg,#fbbf24,#f59e0b);">
+            <div class="mat-level-num" style="color:#78350f;">5</div>
+            <div class="mat-level-pct" style="color:#78350f;">~3% of orgs</div>
+          </div>
+          <div class="mat-level-body">
+            <div class="mat-level-name" style="color:#92400e;">⭐ Optimized — DQ as Competitive Intelligence</div>
+            <div class="mat-level-tagline">"Our data quality is a product feature. It's how we beat the market."</div>
+            <div class="mat-indicators">
+              <div class="mat-ind-box">
+                <div class="mat-ind-label">You're Here If…</div>
+                <div class="mat-ind-text">AI/ML models self-detect and flag quality drift before business impact. Pipelines auto-heal on known failure patterns. Consumers get real-time SLOs.</div>
+              </div>
+              <div class="mat-ind-box">
+                <div class="mat-ind-label">Real-World Example</div>
+                <div class="mat-ind-text">Netflix's recommendation pipeline automatically reweights signals when upstream engagement data degrades — without any manual intervention or viewer disruption.</div>
+              </div>
+              <div class="mat-ind-box">
+                <div class="mat-ind-label">Key Capabilities</div>
+                <div class="mat-ind-text">Predictive anomaly detection · Self-healing pipelines · DQ-as-a-service APIs · Real-time SLOs published to consumers · Quality encoded in data products</div>
+              </div>
+              <div class="mat-ind-box">
+                <div class="mat-ind-label">Typical Org Profile</div>
+                <div class="mat-ind-text">FAANG-tier tech companies, top-tier fintechs, or data-native organisations where data quality is literally a product capability, not a support function.</div>
+              </div>
+            </div>
+            <div class="mat-quote">"We don't talk about data quality much internally — because it just works. Our SLA to the business is 99.95% clean data within 5 minutes of source event." — CDO, Global FinTech Platform</div>
+          </div>
         </div>
-        <div class="layer" style="background:linear-gradient(135deg,#0d6b5e,#1a7a6e); color:white;">
-          <div class="layer-num" style="background:rgba(255,255,255,0.25); color:white;">4</div>
-          <div class="layer-info"><h5 style="color:white;">Managed</h5><p style="color:rgba(255,255,255,0.9);">Org-wide DQ KPIs, cross-system data contracts, governance council active, ML models monitored for drift</p></div>
+        <!-- Level 4 -->
+        <div class="mat-level-card">
+          <div class="mat-level-badge" style="background:linear-gradient(160deg,#0d6b5e,#1a7a6e);">
+            <div class="mat-level-num" style="color:#ccfbf1;">4</div>
+            <div class="mat-level-pct" style="color:#99f6e4;">~8% of orgs</div>
+          </div>
+          <div class="mat-level-body">
+            <div class="mat-level-name" style="color:#0d6b5e;">Managed — Systematic &amp; Metrics-Driven</div>
+            <div class="mat-level-tagline">"We have KPIs for data quality and they're reviewed in the executive dashboard."</div>
+            <div class="mat-indicators">
+              <div class="mat-ind-box">
+                <div class="mat-ind-label">You're Here If…</div>
+                <div class="mat-ind-text">DQ KPIs are tracked org-wide, data contracts exist between producers and consumers, governance council meets regularly, ML models are monitored for drift.</div>
+              </div>
+              <div class="mat-ind-box">
+                <div class="mat-ind-label">Real-World Example</div>
+                <div class="mat-ind-text">A global bank (BCBS 239 compliance) publishes a weekly DQ scorecard to the CFO and CRO, with automatic SLA breach escalation to the CTO within 60 minutes of violation.</div>
+              </div>
+              <div class="mat-ind-box">
+                <div class="mat-ind-label">Key Capabilities</div>
+                <div class="mat-ind-text">Cross-domain DQ KPIs · Formal data contracts · Governance council active · ML drift monitoring · Executive DQ reporting · OKR-linked quality targets</div>
+              </div>
+              <div class="mat-ind-box">
+                <div class="mat-ind-label">Typical Org Profile</div>
+                <div class="mat-ind-text">Large regulated enterprises (banking, pharma, insurance) that have gone through a compliance event or a significant DQ incident that forced systematic investment.</div>
+              </div>
+            </div>
+            <div class="mat-quote">"Data quality is now a standing agenda item in our risk committee. When completeness drops below 98%, there's an automatic escalation within the hour." — VP Data, APAC Bank</div>
+          </div>
         </div>
-        <div class="layer" style="background:linear-gradient(135deg,#2aa897,#4db8ac); color:white;">
-          <div class="layer-num" style="background:rgba(255,255,255,0.25); color:white;">3</div>
-          <div class="layer-info"><h5 style="color:white;">Defined</h5><p style="color:rgba(255,255,255,0.9);">Standardized DQ processes, automated checks in all pipelines, dashboards operational, clear ownership RACI</p></div>
+        <!-- Level 3 -->
+        <div class="mat-level-card">
+          <div class="mat-level-badge" style="background:linear-gradient(160deg,#2aa897,#4db8ac);">
+            <div class="mat-level-num" style="color:white;">3</div>
+            <div class="mat-level-pct" style="color:rgba(255,255,255,0.85);">~20% of orgs</div>
+          </div>
+          <div class="mat-level-body">
+            <div class="mat-level-name" style="color:#0d6b5e;">Defined — Standardised &amp; Proactive</div>
+            <div class="mat-level-tagline">"We catch most issues before they reach the business — usually."</div>
+            <div class="mat-indicators">
+              <div class="mat-ind-box">
+                <div class="mat-ind-label">You're Here If…</div>
+                <div class="mat-ind-text">DQ checks run automatically in all production pipelines. Issues are tracked in a register. RACI is documented and followed. DQ dashboards exist for data owners.</div>
+              </div>
+              <div class="mat-ind-box">
+                <div class="mat-ind-label">Real-World Example</div>
+                <div class="mat-ind-text">A mid-size e-commerce company runs 400+ automated Great Expectations checks nightly. The data team gets paged on revenue table failures — not the CFO discovering them in a board deck.</div>
+              </div>
+              <div class="mat-ind-box">
+                <div class="mat-ind-label">Key Capabilities</div>
+                <div class="mat-ind-text">Automated pipeline checks · Issue tracking register · RACI documented · DQ dashboards · Defined RCA process · Formal incident response workflow</div>
+              </div>
+              <div class="mat-ind-box">
+                <div class="mat-ind-label">Typical Org Profile</div>
+                <div class="mat-ind-text">Growing tech companies, progressive retail or FMCG, healthcare analytics teams — typically post-Series B or equivalent internal maturity, with at least one dedicated DQ role.</div>
+              </div>
+            </div>
+            <div class="mat-quote">"We blocked a bad CRM migration from reaching production last quarter. Saved a £200K remediation project. The business barely noticed — that's exactly the point." — Data Engineering Lead, UK Retailer</div>
+          </div>
         </div>
-        <div class="layer" style="background:linear-gradient(135deg,#7ecdc7,#a8deda); color:var(--navy);">
-          <div class="layer-num" style="background:rgba(255,255,255,0.5); color:var(--navy);">2</div>
-          <div class="layer-info"><h5 style="color:var(--navy);">Repeatable</h5><p style="color:var(--gray-600);">Some automated checks, informal monitoring, ad-hoc issue response, partial documentation</p></div>
+        <!-- Level 2 -->
+        <div class="mat-level-card">
+          <div class="mat-level-badge" style="background:linear-gradient(160deg,#94d4cf,#b2e3df);">
+            <div class="mat-level-num" style="color:#0f4e49;">2</div>
+            <div class="mat-level-pct" style="color:#0f4e49;">~22% of orgs</div>
+          </div>
+          <div class="mat-level-body">
+            <div class="mat-level-name" style="color:#0f4e49;">Repeatable — Reactive but Structured</div>
+            <div class="mat-level-tagline">"We have some checks, but we still find out about problems from angry emails."</div>
+            <div class="mat-indicators">
+              <div class="mat-ind-box">
+                <div class="mat-ind-label">You're Here If…</div>
+                <div class="mat-ind-text">Some pipelines have automated checks but coverage is patchy. Fixes happen but the same issues recur. Documentation exists in theory but isn't consistently followed.</div>
+              </div>
+              <div class="mat-ind-box">
+                <div class="mat-ind-label">Real-World Example</div>
+                <div class="mat-ind-text">A SaaS startup checks for null order IDs in nightly ETL, but discovered 3 months of bad discount codes only when a sales director spotted a revenue anomaly in Tableau — costing $340K in mis-attributed commission.</div>
+              </div>
+              <div class="mat-ind-box">
+                <div class="mat-ind-label">Key Capabilities</div>
+                <div class="mat-ind-text">Partial pipeline checks · Informal monitoring · Ad-hoc issue response · Some documentation · Dedicated but under-resourced DQ effort · Manual exception handling</div>
+              </div>
+              <div class="mat-ind-box">
+                <div class="mat-ind-label">Typical Org Profile</div>
+                <div class="mat-ind-text">Series A–B startups, traditional enterprises beginning data transformation, or teams where one "data champion" informally carries most of the quality burden without formal authority.</div>
+              </div>
+            </div>
+            <div class="mat-quote">"We know data quality is a problem. Our Jira backlog has 200+ DQ issues. But we're always fighting fires — we never get to the preventive work." — Analytics Manager, EdTech Scale-up</div>
+          </div>
         </div>
-        <div class="layer" style="background:var(--gray-100); color:var(--navy); border:1px solid var(--gray-200);">
-          <div class="layer-num" style="background:var(--gray-200); color:var(--gray-600);">1</div>
-          <div class="layer-info"><h5 style="color:var(--gray-600);">Initial / Ad-Hoc</h5><p style="color:var(--gray-400);">No formal DQ process, issues discovered by end-users, manual fixes, no measurement</p></div>
+        <!-- Level 1 -->
+        <div class="mat-level-card">
+          <div class="mat-level-badge" style="background:#f1f5f9;">
+            <div class="mat-level-num" style="color:#94a3b8;">1</div>
+            <div class="mat-level-pct" style="color:#94a3b8;">~47% of orgs</div>
+          </div>
+          <div class="mat-level-body">
+            <div class="mat-level-name" style="color:#64748b;">Initial / Ad-Hoc — Undocumented &amp; Reactive</div>
+            <div class="mat-level-tagline">"We find out about data problems when a business user complains."</div>
+            <div class="mat-indicators">
+              <div class="mat-ind-box">
+                <div class="mat-ind-label">You're Here If…</div>
+                <div class="mat-ind-text">No formal DQ process exists. Issues surface via user complaints or failed reports. Fixes are one-off, undocumented, and not repeatable. No one formally owns data quality.</div>
+              </div>
+              <div class="mat-ind-box">
+                <div class="mat-ind-label">Real-World Example</div>
+                <div class="mat-ind-text">A manufacturer discovered its customer master had 34% duplicate records only when migrating to a new CRM — after 8 years of accumulation. Cleanup cost: $1.4M. Launch delayed by 7 months.</div>
+              </div>
+              <div class="mat-ind-box">
+                <div class="mat-ind-label">Key Characteristics</div>
+                <div class="mat-ind-text">No automated checks · No clear ownership · Issues discovered by end-users · Manual one-off fixes · No measurement, KPIs, or tracking of quality over time</div>
+              </div>
+              <div class="mat-ind-box">
+                <div class="mat-ind-label">Typical Org Profile</div>
+                <div class="mat-ind-text">Traditional industries new to structured analytics (logistics, manufacturing, SMB retail), or fast-growing companies that scaled their data volumes faster than their data practices.</div>
+              </div>
+            </div>
+            <div class="mat-quote">"Our biggest data quality tool is a 600-row Excel spreadsheet our senior analyst maintains. He's the only person who knows where anything is." — VP Operations, Logistics Company</div>
+          </div>
         </div>
       </div>
 
-      <h3 class="section-title">12-Month DQ Roadmap</h3>
-      <table class="data-table">
-        <thead><tr><th>Quarter</th><th>Focus</th><th>Key Deliverables</th><th>Maturity Target</th></tr></thead>
-        <tbody>
-          <tr><td><strong>Q1</strong></td><td>Foundation</td><td>DQ team formed, inventory complete, Tier 1 checks deployed, baseline dashboards live</td><td>Level 2</td></tr>
-          <tr><td><strong>Q2</strong></td><td>Coverage Expansion</td><td>All Tier 2 tables covered, alerting operational, RACI published, exception register live</td><td>Level 3</td></tr>
-          <tr><td><strong>Q3</strong></td><td>Improvement &amp; Governance</td><td>DQ KPIs in OKRs, data contracts for top 10 sources, first DQ sprint completed</td><td>Level 3–4</td></tr>
-          <tr><td><strong>Q4</strong></td><td>Optimization</td><td>ML model monitoring deployed, automated RCA tooling, DQ scorecard for all domains</td><td>Level 4</td></tr>
-        </tbody>
-      </table>
+      <h3 class="section-title">Self-Assessment: Where Are You Now?</h3>
+      <p>Use this grid to identify your current maturity level across five capability dimensions. Your overall level is your <strong>lowest-scoring dimension</strong> — a chain is only as strong as its weakest link. No organisation advances to Level 4 without addressing all five dimensions systematically.</p>
+      <div class="assess-wrap">
+        <table class="assess-grid">
+          <thead>
+            <tr>
+              <th style="text-align:left; min-width:110px;">Capability</th>
+              <th>Level 1 · Ad-Hoc</th>
+              <th>Level 2 · Repeatable</th>
+              <th>Level 3 · Defined</th>
+              <th>Level 4 · Managed</th>
+              <th>Level 5 · Optimized</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>People &amp; Ownership</td>
+              <td class="ac1">No DQ roles; ad-hoc heroics by individuals</td>
+              <td class="ac2">1–2 champions carry DQ informally</td>
+              <td class="ac3">DQ team exists; RACI published and followed</td>
+              <td class="ac4">Data Stewards per domain; governance council active</td>
+              <td class="ac5">DQ embedded in all engineering roles; Champion network org-wide</td>
+            </tr>
+            <tr>
+              <td>Process &amp; Standards</td>
+              <td class="ac1">No standards or documentation</td>
+              <td class="ac2">Informal conventions, some runbooks</td>
+              <td class="ac3">Standardised check templates, SLAs defined</td>
+              <td class="ac4">Data contracts enforced; formal data products with quality SLOs</td>
+              <td class="ac5">Automated contract enforcement; self-service DQ APIs for producers</td>
+            </tr>
+            <tr>
+              <td>Technology &amp; Tooling</td>
+              <td class="ac1">Manual checks in Excel or ad-hoc scripts</td>
+              <td class="ac2">Basic pipeline checks deployed inconsistently</td>
+              <td class="ac3">Automated checks in all pipelines (dbt tests, Great Expectations)</td>
+              <td class="ac4">Unified DQ platform with lineage, cataloging &amp; real-time alerting</td>
+              <td class="ac5">AI anomaly detection, self-healing pipelines, real-time monitoring</td>
+            </tr>
+            <tr>
+              <td>Measurement &amp; KPIs</td>
+              <td class="ac1">No measurement at all</td>
+              <td class="ac2">Ad-hoc metrics generated only after incidents</td>
+              <td class="ac3">Dimension scores tracked per critical table; dashboards live</td>
+              <td class="ac4">Org-wide DQ KPIs linked to OKRs; executive reporting cadence</td>
+              <td class="ac5">Real-time SLOs published to consumers; predictive quality forecasting</td>
+            </tr>
+            <tr>
+              <td>Culture &amp; Awareness</td>
+              <td class="ac1">DQ seen as "IT's problem"</td>
+              <td class="ac2">Some awareness in analytics team post-incidents</td>
+              <td class="ac3">Business teams engaged in DQ definitions and sign-off</td>
+              <td class="ac4">DQ targets in business OKRs; quarterly leadership reviews</td>
+              <td class="ac5">DQ is a product feature; engineers rewarded for prevention not remediation</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="section-title">The DQ Transformation Roadmap</h3>
+      <p>The roadmap below shows a practical journey from Level 1 to Level 4. The <em>sequence matters</em>: you must build the foundation before automating it, and automate before governing it at scale. Phases overlap and timelines vary by organisation size — a startup may compress this into 9 months, while a large enterprise may take 24.</p>
+
+      <!-- Roadmap SVG visual -->
+      <div style="overflow-x:auto; margin:24px 0;">
+        <svg viewBox="0 0 760 110" xmlns="http://www.w3.org/2000/svg" style="width:100%; min-width:600px; max-height:110px;">
+          <defs>
+            <marker id="rmarr" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+              <polygon points="0 0, 8 3, 0 6" fill="#94a3b8"/>
+            </marker>
+          </defs>
+          <!-- Track line -->
+          <line x1="60" y1="55" x2="700" y2="55" stroke="#e2e8f0" stroke-width="4" stroke-linecap="round"/>
+          <!-- Progress fill -->
+          <line x1="60" y1="55" x2="560" y2="55" stroke="url(#rmGrad)" stroke-width="4" stroke-linecap="round"/>
+          <defs>
+            <linearGradient id="rmGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#94a3b8"/>
+              <stop offset="35%" stop-color="#4db8ac"/>
+              <stop offset="70%" stop-color="#1a7a6e"/>
+              <stop offset="100%" stop-color="#f59e0b"/>
+            </linearGradient>
+          </defs>
+          <!-- Phase nodes -->
+          <!-- P1 -->
+          <circle cx="60" cy="55" r="22" fill="#f1f5f9" stroke="#94a3b8" stroke-width="2.5"/>
+          <text x="60" y="51" text-anchor="middle" fill="#64748b" font-size="9" font-weight="700">PHASE</text>
+          <text x="60" y="63" text-anchor="middle" fill="#334155" font-size="15" font-weight="900">1</text>
+          <text x="60" y="88" text-anchor="middle" fill="#64748b" font-size="9" font-weight="600">Foundation</text>
+          <text x="60" y="100" text-anchor="middle" fill="#94a3b8" font-size="8">Months 1–3</text>
+          <!-- P2 -->
+          <circle cx="210" cy="55" r="22" fill="#e0f8f5" stroke="#4db8ac" stroke-width="2.5"/>
+          <text x="210" y="51" text-anchor="middle" fill="#2aa897" font-size="9" font-weight="700">PHASE</text>
+          <text x="210" y="63" text-anchor="middle" fill="#0d6b5e" font-size="15" font-weight="900">2</text>
+          <text x="210" y="88" text-anchor="middle" fill="#0d6b5e" font-size="9" font-weight="600">Coverage</text>
+          <text x="210" y="100" text-anchor="middle" fill="#94a3b8" font-size="8">Months 4–6</text>
+          <!-- P3 -->
+          <circle cx="360" cy="55" r="22" fill="#d1fae5" stroke="#1a7a6e" stroke-width="2.5"/>
+          <text x="360" y="51" text-anchor="middle" fill="#1a7a6e" font-size="9" font-weight="700">PHASE</text>
+          <text x="360" y="63" text-anchor="middle" fill="#0d6b5e" font-size="15" font-weight="900">3</text>
+          <text x="360" y="88" text-anchor="middle" fill="#0d6b5e" font-size="9" font-weight="600">Governance</text>
+          <text x="360" y="100" text-anchor="middle" fill="#94a3b8" font-size="8">Months 7–9</text>
+          <!-- P4 -->
+          <circle cx="510" cy="55" r="22" fill="#fef3c7" stroke="#f59e0b" stroke-width="2.5"/>
+          <text x="510" y="51" text-anchor="middle" fill="#b45309" font-size="9" font-weight="700">PHASE</text>
+          <text x="510" y="63" text-anchor="middle" fill="#92400e" font-size="15" font-weight="900">4</text>
+          <text x="510" y="88" text-anchor="middle" fill="#92400e" font-size="9" font-weight="600">Optimisation</text>
+          <text x="510" y="100" text-anchor="middle" fill="#94a3b8" font-size="8">Months 10–12</text>
+          <!-- P5 -->
+          <circle cx="680" cy="55" r="22" fill="#fde8c8" stroke="#d97706" stroke-width="2.5" stroke-dasharray="5,3"/>
+          <text x="680" y="51" text-anchor="middle" fill="#b45309" font-size="9" font-weight="700">PHASE</text>
+          <text x="680" y="63" text-anchor="middle" fill="#92400e" font-size="15" font-weight="900">5+</text>
+          <text x="680" y="88" text-anchor="middle" fill="#92400e" font-size="9" font-weight="600">Intelligence</text>
+          <text x="680" y="100" text-anchor="middle" fill="#94a3b8" font-size="8">Year 2+</text>
+          <!-- Level labels above line -->
+          <rect x="36" y="18" width="48" height="16" rx="8" fill="#f1f5f9"/>
+          <text x="60" y="30" text-anchor="middle" fill="#64748b" font-size="9" font-weight="700">Lvl 1 → 2</text>
+          <rect x="186" y="18" width="48" height="16" rx="8" fill="#e0f8f5"/>
+          <text x="210" y="30" text-anchor="middle" fill="#0d6b5e" font-size="9" font-weight="700">Lvl 2 → 3</text>
+          <rect x="336" y="18" width="48" height="16" rx="8" fill="#d1fae5"/>
+          <text x="360" y="30" text-anchor="middle" fill="#0d6b5e" font-size="9" font-weight="700">Lvl 3 → 4</text>
+          <rect x="486" y="18" width="48" height="16" rx="8" fill="#fef3c7"/>
+          <text x="510" y="30" text-anchor="middle" fill="#92400e" font-size="9" font-weight="700">Lvl 4</text>
+          <rect x="656" y="18" width="48" height="16" rx="8" fill="#fde8c8" rx="8"/>
+          <text x="680" y="30" text-anchor="middle" fill="#92400e" font-size="9" font-weight="700">Lvl 5</text>
+        </svg>
+      </div>
+
+      <div class="rm-phases">
+        <!-- Phase 1 -->
+        <div class="rm-card" style="border-left:4px solid #94a3b8;">
+          <div class="rm-phase-tag" style="color:#64748b;">Phase 1 · Months 1–3</div>
+          <div class="rm-phase-title">Foundation — Know What You Have</div>
+          <div class="rm-phase-desc">Before you can improve data quality, you must understand your current state. This phase is about discovery, measurement, and establishing the basic infrastructure. The goal is to move from "we don't know what we have" to "we know exactly where our problems are and who owns them."</div>
+          <div class="rm-deliverables">
+            <div class="rm-del"><span class="rm-del-arrow">→</span>Complete data asset inventory across all critical domains (sales, finance, operations)</div>
+            <div class="rm-del"><span class="rm-del-arrow">→</span>Run DQ profiling on all Tier 1 tables — document baseline dimension scores</div>
+            <div class="rm-del"><span class="rm-del-arrow">→</span>Define data ownership and publish an initial RACI matrix</div>
+            <div class="rm-del"><span class="rm-del-arrow">→</span>Deploy completeness and uniqueness checks on top 5 revenue-critical tables</div>
+            <div class="rm-del"><span class="rm-del-arrow">→</span>Create DQ metadata schema in your data warehouse to log check results</div>
+            <div class="rm-del"><span class="rm-del-arrow">→</span>Establish a basic alert routing (Slack or email) for critical check failures</div>
+          </div>
+          <div class="rm-outcomes">
+            <span class="rm-outcome-pill">Baseline DQ scores documented</span>
+            <span class="rm-outcome-pill">Top 3 data issues identified</span>
+            <span class="rm-outcome-pill">Ownership clear for Tier 1 tables</span>
+          </div>
+          <div class="rm-maturity-jump">📈 Maturity jump: Level 1 → Level 2</div>
+        </div>
+        <!-- Phase 2 -->
+        <div class="rm-card" style="border-left:4px solid #4db8ac;">
+          <div class="rm-phase-tag" style="color:#2aa897;">Phase 2 · Months 4–6</div>
+          <div class="rm-phase-title">Coverage — Automate and Expand</div>
+          <div class="rm-phase-desc">With foundations in place, this phase scales automated monitoring across all production pipelines and domains. The goal is to eliminate the category of "issues discovered by business users" for your critical data assets. Every significant pipeline should have checks running automatically after every load.</div>
+          <div class="rm-deliverables">
+            <div class="rm-del"><span class="rm-del-arrow">→</span>Deploy automated DQ checks across all Tier 1 and Tier 2 pipeline tables</div>
+            <div class="rm-del"><span class="rm-del-arrow">→</span>Implement alerting with severity tiers (P1 page, P2 Slack, P3 daily digest)</div>
+            <div class="rm-del"><span class="rm-del-arrow">→</span>Build and launch a DQ dashboard visible to all data owners and their managers</div>
+            <div class="rm-del"><span class="rm-del-arrow">→</span>Create an exception register to track all known DQ issues with owner and ETA</div>
+            <div class="rm-del"><span class="rm-del-arrow">→</span>Establish a fortnightly DQ review meeting with data owners</div>
+            <div class="rm-del"><span class="rm-del-arrow">→</span>Document RCA templates — ensure every P1/P2 incident has a written post-mortem</div>
+          </div>
+          <div class="rm-outcomes">
+            <span class="rm-outcome-pill">100% of Tier 1 tables monitored</span>
+            <span class="rm-outcome-pill">MTTR for P1 issues &lt; 4 hours</span>
+            <span class="rm-outcome-pill">DQ dashboard live for stakeholders</span>
+          </div>
+          <div class="rm-maturity-jump">📈 Maturity jump: Level 2 → Level 3</div>
+        </div>
+        <!-- Phase 3 -->
+        <div class="rm-card" style="border-left:4px solid #1a7a6e;">
+          <div class="rm-phase-tag" style="color:#1a7a6e;">Phase 3 · Months 7–9</div>
+          <div class="rm-phase-title">Governance — Formalise and Measure</div>
+          <div class="rm-phase-desc">This phase elevates DQ from a technical activity to a business-owned programme. You establish formal accountability structures, link DQ to business KPIs, and implement data contracts between producers and consumers. The goal is to make data quality a shared responsibility — not just an engineering concern.</div>
+          <div class="rm-deliverables">
+            <div class="rm-del"><span class="rm-del-arrow">→</span>Establish a Data Governance Council with executive sponsorship and quarterly cadence</div>
+            <div class="rm-del"><span class="rm-del-arrow">→</span>Implement data contracts for all top 10 critical data sources (SLAs, schemas, quality thresholds)</div>
+            <div class="rm-del"><span class="rm-del-arrow">→</span>Link DQ dimension scores to team OKRs — completeness, freshness targets become measurable goals</div>
+            <div class="rm-del"><span class="rm-del-arrow">→</span>Launch a DQ Champion Network across all business domains</div>
+            <div class="rm-del"><span class="rm-del-arrow">→</span>Publish monthly DQ scorecard to senior leadership including trend analysis</div>
+            <div class="rm-del"><span class="rm-del-arrow">→</span>Implement automated lineage tracking to accelerate RCA from hours to minutes</div>
+          </div>
+          <div class="rm-outcomes">
+            <span class="rm-outcome-pill">DQ KPIs in exec dashboard</span>
+            <span class="rm-outcome-pill">Data contracts active for top sources</span>
+            <span class="rm-outcome-pill">RCA time reduced by 60%+</span>
+          </div>
+          <div class="rm-maturity-jump">📈 Maturity jump: Level 3 → Level 4</div>
+        </div>
+        <!-- Phase 4 -->
+        <div class="rm-card" style="border-left:4px solid #f59e0b;">
+          <div class="rm-phase-tag" style="color:#b45309;">Phase 4 · Months 10–12</div>
+          <div class="rm-phase-title">Optimisation — Predict and Prevent</div>
+          <div class="rm-phase-desc">At this phase, your DQ programme shifts from detection to prevention. You deploy statistical anomaly detection to catch issues before they propagate, monitor ML model data drift proactively, and automate remediation for known failure patterns. The organisation begins to see DQ as a strategic asset, not a cost centre.</div>
+          <div class="rm-deliverables">
+            <div class="rm-del"><span class="rm-del-arrow">→</span>Deploy statistical anomaly detection (z-score, seasonal decomposition) on key metrics</div>
+            <div class="rm-del"><span class="rm-del-arrow">→</span>Implement ML model data drift monitoring (feature distribution monitoring, PSI alerts)</div>
+            <div class="rm-del"><span class="rm-del-arrow">→</span>Build automated remediation workflows for top 10 recurring failure patterns</div>
+            <div class="rm-del"><span class="rm-del-arrow">→</span>Publish an annual DQ ROI report to leadership — quantify incidents prevented and cost avoided</div>
+            <div class="rm-del"><span class="rm-del-arrow">→</span>Implement end-to-end data observability across your full data stack</div>
+            <div class="rm-del"><span class="rm-del-arrow">→</span>Launch a formal DQ maturity assessment and publish the next 12-month improvement plan</div>
+          </div>
+          <div class="rm-outcomes">
+            <span class="rm-outcome-pill">70%+ issues caught before business impact</span>
+            <span class="rm-outcome-pill">ML drift detection active</span>
+            <span class="rm-outcome-pill">Quantified ROI published to board</span>
+          </div>
+          <div class="rm-maturity-jump">📈 Maturity: Solidified Level 4 — foundation for Level 5</div>
+        </div>
+      </div>
 
       <div class="chart-container">
         <div class="chart-title">DQ Maturity Progress Radar</div>
