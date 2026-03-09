@@ -5222,6 +5222,176 @@
           <div class="tool-exp-analogy">Like a universal power adapter — instead of building a custom cable for every country you visit, one adapter handles all of them.</div>
         </div>
       </div>
+
+      <!-- ══ COMMON QA CHALLENGES ══ -->
+      <style>
+        .qa-intro { background:linear-gradient(135deg,#fff8f0,#fef3c7); border:1px solid #fde68a; border-left:5px solid #f59e0b; border-radius:12px; padding:22px 26px; margin:32px 0 20px; }
+        .qa-intro h4 { font-size:17px; font-weight:900; color:#92400e; margin:0 0 8px; }
+        .qa-intro p  { font-size:13.5px; color:#78350f; line-height:1.8; margin:0; }
+
+        .qa-challenges { display:grid; grid-template-columns:1fr; gap:14px; margin:20px 0; }
+        .qa-card { background:white; border:1px solid #e2e8f0; border-radius:14px; overflow:hidden; transition:box-shadow 0.2s,transform 0.2s; }
+        .qa-card:hover { box-shadow:0 6px 24px rgba(0,0,0,0.09); transform:translateY(-2px); }
+        .qa-card-top { display:flex; align-items:center; gap:14px; padding:16px 20px 12px; border-bottom:1px solid #f1f5f9; }
+        .qa-card-icon { font-size:28px; flex-shrink:0; }
+        .qa-card-title { font-size:15px; font-weight:800; color:#0d1b2a; flex:1; }
+        .qa-card-badge { font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:0.8px; border-radius:20px; padding:3px 10px; white-space:nowrap; flex-shrink:0; }
+        .badge-high   { background:#fee2e2; color:#dc2626; }
+        .badge-med    { background:#fef3c7; color:#b45309; }
+        .badge-common { background:#ede9fe; color:#6d28d9; }
+        .qa-card-body { padding:14px 20px; }
+        .qa-what  { font-size:13px; color:#334155; line-height:1.75; margin:0 0 10px; }
+        .qa-analogy { font-size:12.5px; font-style:italic; color:#0d6b5e; background:#f0fdfb; border-left:3px solid #6ee7b7; border-radius:0 8px 8px 0; padding:8px 12px; margin:0 0 10px; line-height:1.65; }
+        .qa-signals { display:flex; flex-wrap:wrap; gap:7px; margin:0 0 10px; }
+        .qa-signal { font-size:11.5px; color:#334155; background:#f8fafc; border:1px solid #e2e8f0; border-radius:20px; padding:3px 11px; }
+        .qa-fix { font-size:12px; font-weight:600; color:#166534; background:#dcfce7; border-radius:8px; padding:8px 12px; line-height:1.6; }
+        .qa-fix::before { content:"✅ Design fix: "; font-weight:800; }
+
+        .qa-summary { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin:28px 0 0; }
+        .qa-sum-card { background:white; border:1px solid #e2e8f0; border-radius:12px; padding:16px; text-align:center; }
+        .qa-sum-num  { font-size:32px; font-weight:900; line-height:1; margin-bottom:6px; }
+        .qa-sum-label{ font-size:12px; color:#64748b; line-height:1.5; }
+
+        @keyframes fadeInQa { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
+        .qa-anim { opacity:0; }
+        .qa-anim.visible { animation:fadeInQa 0.5s ease forwards; }
+
+        @media(max-width:640px){ .qa-summary { grid-template-columns:1fr 1fr; } }
+      </style>
+
+      <h3 class="section-title">Common QA Challenges in Data Platforms</h3>
+
+      <div class="qa-intro qa-anim">
+        <h4>⚠️ Know the pitfalls before you build</h4>
+        <p>Every data platform runs into the same category of quality problems — regardless of which tools or cloud provider you use. Understanding these challenges now means you can design your checks, alerts, and ownership model around them from day one, rather than discovering them after they've already broken something important.</p>
+      </div>
+
+      <div style="background:#eff6ff; border:1px solid #bfdbfe; border-radius:10px; padding:14px 18px; margin:0 0 20px; font-size:13px; color:#1e3a5f; line-height:1.7;">
+        💡 <strong>Note:</strong> This section covers platform-level design challenges — things to plan around <em>before</em> you build. For runtime pipeline issues (schema drift, duplicate ingestion, type errors, stale loads) and their step-by-step fixes, see <strong>Chapter 13 · Fixing Data Pipeline Issues</strong>.
+      </div>
+
+      <div class="qa-challenges">
+
+        <div class="qa-card qa-anim" style="animation-delay:0.1s;">
+          <div class="qa-card-top">
+            <span class="qa-card-icon">🔇</span>
+            <span class="qa-card-title">Silent Pipeline Failures</span>
+            <span class="qa-card-badge badge-high">High Impact</span>
+          </div>
+          <div class="qa-card-body">
+            <p class="qa-what">A pipeline job reports "success" in the scheduler but the output is empty, partial, or incorrect. No error was thrown — the job simply ran on no data, or a filter was mis-applied, or a JOIN returned zero rows. Downstream consumers see a green status light but receive wrong data.</p>
+            <div class="qa-analogy">Like a printer that shows "Print complete" but the paper tray was empty — the job finished, but nothing actually came out.</div>
+            <div class="qa-signals">
+              <span class="qa-signal">⚠ Output table suddenly has 0 rows</span>
+              <span class="qa-signal">⚠ Row counts drop by &gt;20% overnight</span>
+              <span class="qa-signal">⚠ All values in a column are NULL</span>
+            </div>
+            <div class="qa-fix">Never trust exit codes alone. Add post-run row-count assertions, NULL-rate checks, and min/max value range checks. A job that produces an empty table should trigger an alert, not a green tick.</div>
+          </div>
+        </div>
+
+        <div class="qa-card qa-anim" style="animation-delay:0.2s;">
+          <div class="qa-card-top">
+            <span class="qa-card-icon">🔬</span>
+            <span class="qa-card-title">Test Coverage Gaps</span>
+            <span class="qa-card-badge badge-med">Medium Impact</span>
+          </div>
+          <div class="qa-card-body">
+            <p class="qa-what">Teams write DQ checks for the columns they think about — but not for every column that matters. A field like "discount_percentage" or "refund_flag" might have no check at all. An edge case (a NULL where there should never be a NULL) goes undetected for months because no one defined a rule for it.</p>
+            <div class="qa-analogy">Like a food safety inspector who only checks the ingredients list but never the expiry date or storage temperature — the parts they didn't inspect are where the problem hides.</div>
+            <div class="qa-signals">
+              <span class="qa-signal">⚠ Issues in fields with no existing checks</span>
+              <span class="qa-signal">⚠ Metrics wrong despite all checks passing</span>
+              <span class="qa-signal">⚠ New columns added without review</span>
+            </div>
+            <div class="qa-fix">Run a coverage audit — list every column in your critical tables and confirm at least one DQ check exists for each. Treat unchecked columns as technical debt. Add checks every time a new field is introduced.</div>
+          </div>
+        </div>
+
+        <div class="qa-card qa-anim" style="animation-delay:0.25s;">
+          <div class="qa-card-top">
+            <span class="qa-card-icon">🏗️</span>
+            <span class="qa-card-title">Dev / Prod Environment Parity</span>
+            <span class="qa-card-badge badge-med">Medium Impact</span>
+          </div>
+          <div class="qa-card-body">
+            <p class="qa-what">Development and test environments use synthetic or sampled data that doesn't reflect the messiness of real production data. Checks pass in testing but fail in production because the real data has edge cases, unusual values, or volume patterns that the test data didn't include.</p>
+            <div class="qa-analogy">Like rehearsing a play on an empty stage and then performing for the first time in a full theatre — the extra complexity exposes problems that never showed up in rehearsal.</div>
+            <div class="qa-signals">
+              <span class="qa-signal">⚠ Checks pass in dev, fail in prod</span>
+              <span class="qa-signal">⚠ Performance degrades at scale</span>
+              <span class="qa-signal">⚠ Edge-case values absent from test data</span>
+            </div>
+            <div class="qa-fix">Use anonymised or masked samples of real production data in your test environment. Run DQ checks against production data in read-only mode before deploying changes to pipelines.</div>
+          </div>
+        </div>
+
+        <div class="qa-card qa-anim" style="animation-delay:0.3s;">
+          <div class="qa-card-top">
+            <span class="qa-card-icon">🧩</span>
+            <span class="qa-card-title">Referential Integrity Breaks</span>
+            <span class="qa-card-badge badge-common">Very Common</span>
+          </div>
+          <div class="qa-card-body">
+            <p class="qa-what">A record in one table references an ID in another table that no longer exists — an orphaned foreign key. This creates silent data loss in JOINs: the orphaned rows simply disappear from queries without any error. Common after migrations, deletions, or when source systems don't enforce their own foreign key constraints.</p>
+            <div class="qa-analogy">Like a library catalogue that lists a book as "available on shelf 4B" — but when you go there, the book is gone. The record exists; the thing it points to doesn't.</div>
+            <div class="qa-signals">
+              <span class="qa-signal">⚠ JOIN results have fewer rows than expected</span>
+              <span class="qa-signal">⚠ Metrics drop after a migration</span>
+              <span class="qa-signal">⚠ IDs present in one table, absent in another</span>
+            </div>
+            <div class="qa-fix">Run referential integrity checks as a standard post-ingestion test — count orphaned foreign keys for every critical relationship. Any orphan count above zero should generate an alert.</div>
+          </div>
+        </div>
+
+        <div class="qa-card qa-anim" style="animation-delay:0.35s;">
+          <div class="qa-card-top">
+            <span class="qa-card-icon">📉</span>
+            <span class="qa-card-title">Metric Drift Without a Code Change</span>
+            <span class="qa-card-badge badge-common">Very Common</span>
+          </div>
+          <div class="qa-card-body">
+            <p class="qa-what">A KPI shifts slowly over weeks — conversion rate creeps down, average order value drifts up — but no pipeline or business logic changed. The cause is the underlying data changing in character: new customer segments, seasonal patterns, or a source system that started sending different values for the same field.</p>
+            <div class="qa-analogy">Like a set of scales that slowly becomes miscalibrated — each individual reading looks plausible, but over time everything is consistently off in a direction nobody noticed.</div>
+            <div class="qa-signals">
+              <span class="qa-signal">⚠ KPI trends diverge from expectations</span>
+              <span class="qa-signal">⚠ Distribution of a field shifts over weeks</span>
+              <span class="qa-signal">⚠ New value categories appear in data</span>
+            </div>
+            <div class="qa-fix">Monitor statistical distributions, not just counts. Set up anomaly detection on key metric trends so that gradual drift — not just sudden spikes — triggers an investigation before stakeholders notice.</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Summary stats -->
+      <div class="qa-summary qa-anim" style="animation-delay:0.45s;">
+        <div class="qa-sum-card">
+          <div class="qa-sum-num" style="color:#dc2626;">5</div>
+          <div class="qa-sum-label">Platform design challenges covered — Ch13 covers pipeline runtime fixes</div>
+        </div>
+        <div class="qa-sum-card">
+          <div class="qa-sum-num" style="color:#d97706;">80%</div>
+          <div class="qa-sum-label">of data incidents trace back to one of these patterns</div>
+        </div>
+        <div class="qa-sum-card">
+          <div class="qa-sum-num" style="color:#1a7a6e;">1×</div>
+          <div class="qa-sum-label">the cost to prevent vs. 10–100× to fix in production</div>
+        </div>
+      </div>
+
+      <script>
+      (function(){
+        var els = document.querySelectorAll('#ch6 .qa-anim');
+        if(!els.length) return;
+        var io = new IntersectionObserver(function(entries){
+          entries.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('visible'); io.unobserve(e.target); } });
+        },{threshold:0});
+        els.forEach(function(el){ io.observe(el); });
+        setTimeout(function(){ els.forEach(function(el){ el.classList.add('visible'); }); }, 300);
+      })();
+      </script>
+
     </section>
 
     <!-- CHAPTER 7 -->
@@ -8778,10 +8948,8 @@
         .sector-pill { background:white; border:2px solid var(--teal-pale); border-radius:24px; padding:8px 20px; font-size:13px; font-weight:700; color:var(--teal-dark); cursor:default; }
 
         .impact-stats { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin:20px 0 32px; }
-        .impact-stat { background:white; border:1px solid #fee2e2; border-top:4px solid #ef4444; border-radius:12px; padding:16px; text-align:center; }
-        .i-num { font-size:26px; font-weight:900; line-height:1.1; margin-bottom:6px; }
+        #ch19 .impact-stat { border:1px solid #fee2e2; border-top:4px solid #ef4444; }
         .i-num.red { color:#dc2626; }
-        .i-label { font-size:11.5px; color:#64748b; line-height:1.5; }
 
         .sector-header { display:flex; align-items:center; gap:14px; background:linear-gradient(135deg,#f0fdfb,#e8f9f6); border:1px solid var(--teal-pale); border-radius:12px; padding:18px 22px; margin:28px 0 16px; }
         .sector-icon { font-size:36px; line-height:1; }
@@ -8834,10 +9002,10 @@
       </div>
 
       <div class="impact-stats ch19-anim" style="animation-delay:0.1s">
-        <div class="impact-stat"><div class="i-num red">$12.9T</div><div class="i-label">Annual global cost of bad data (Gartner)</div></div>
-        <div class="impact-stat"><div class="i-num red">68%</div><div class="i-label">Analyst time wasted cleaning data instead of analysing it</div></div>
-        <div class="impact-stat"><div class="i-num red">3–8%</div><div class="i-label">Revenue leakage from data quality issues in average company</div></div>
+        <div class="impact-stat"><div class="i-num red">$450B+</div><div class="i-label">Annual cost of poor data quality in healthcare alone (Johns Hopkins)</div></div>
+        <div class="impact-stat"><div class="i-num red">3–8%</div><div class="i-label">Revenue leakage from data quality issues in a typical company</div></div>
         <div class="impact-stat"><div class="i-num red">87%</div><div class="i-label">AI/ML projects damaged or delayed by poor data quality</div></div>
+        <div class="impact-stat"><div class="i-num red">$1.7T</div><div class="i-label">Financial services losses from data errors annually (IBM)</div></div>
       </div>
 
       <!-- ===== HEALTHCARE ===== -->
