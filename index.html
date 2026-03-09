@@ -156,7 +156,8 @@
 
   /* ===== COVER ===== */
   .cover {
-    background: linear-gradient(135deg, #f0fdfb 0%, #e8f8f5 40%, #d4f0ec 100%);
+    background:
+      linear-gradient(160deg, #edfaf7 0%, #d6f5ef 30%, #c2ede6 60%, #e8f4fd 100%);
     min-height: 100vh;
     display: flex;
     flex-direction: column;
@@ -166,35 +167,42 @@
     position: relative;
     overflow: hidden;
   }
+  /* Top-right deep teal glow */
   .cover::before {
     content: '';
     position: absolute;
-    top: -100px; right: -100px;
-    width: 600px; height: 600px;
+    top: -140px; right: -140px;
+    width: 700px; height: 700px;
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(26,122,110,0.12) 0%, transparent 70%);
-    animation: pulse 6s ease-in-out infinite;
+    background: radial-gradient(circle, rgba(13,148,136,0.18) 0%, rgba(13,148,136,0.06) 45%, transparent 72%);
+    animation: pulse 7s ease-in-out infinite;
   }
+  /* Bottom-left blue-gold accent glow */
   .cover::after {
     content: '';
     position: absolute;
-    bottom: -80px; left: -80px;
-    width: 400px; height: 400px;
+    bottom: -100px; left: -100px;
+    width: 500px; height: 500px;
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(232,160,32,0.1) 0%, transparent 70%);
-    animation: pulse 8s ease-in-out infinite reverse;
+    background: radial-gradient(circle, rgba(59,130,246,0.10) 0%, rgba(232,160,32,0.07) 50%, transparent 72%);
+    animation: pulse 9s ease-in-out infinite reverse;
   }
   @keyframes pulse {
-    0%, 100% { transform: scale(1); opacity: 0.7; }
-    50% { transform: scale(1.1); opacity: 1; }
+    0%, 100% { transform: scale(1); opacity: 0.75; }
+    50% { transform: scale(1.12); opacity: 1; }
   }
+  /* Diagonal stripe texture — subtle premium feel */
   .cover-grid {
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
     background-image:
-      linear-gradient(rgba(26,122,110,0.05) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(26,122,110,0.05) 1px, transparent 1px);
-    background-size: 40px 40px;
+      repeating-linear-gradient(
+        -45deg,
+        rgba(13,148,136,0.03) 0px,
+        rgba(13,148,136,0.03) 1px,
+        transparent 1px,
+        transparent 18px
+      );
   }
   .cover-content { position: relative; z-index: 2; max-width: 680px; }
   .cover-eyebrow {
@@ -269,46 +277,91 @@
   }
   .floating-stats {
     position: absolute;
-    right: 80px;
+    right: 60px;
     top: 50%;
     transform: translateY(-50%);
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 9px;
     z-index: 2;
   }
   .stat-card {
-    background: white;
-    border: 1px solid var(--gray-200);
-    box-shadow: 0 4px 20px rgba(26,122,110,0.1);
-    padding: 20px 24px;
-    border-radius: 10px;
+    width: 130px;
+    padding: 12px 14px 10px;
+    border-radius: 12px;
     text-align: center;
     animation: floatUp 0.8s ease forwards;
     opacity: 0;
-    transform: translateY(20px);
-    border-top: 3px solid var(--teal);
+    transform: translateY(24px);
+    position: relative;
+    overflow: hidden;
+    cursor: default;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
   }
-  .stat-card:nth-child(1) { animation-delay: 0.3s; }
-  .stat-card:nth-child(2) { animation-delay: 0.5s; }
-  .stat-card:nth-child(3) { animation-delay: 0.7s; }
-  .stat-card:nth-child(4) { animation-delay: 0.9s; }
+  .stat-card:hover { transform: translateY(-4px) scale(1.03); }
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: -28px; right: -28px;
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.12);
+    pointer-events: none;
+  }
+  .stat-card::after {
+    content: '';
+    position: absolute;
+    bottom: -18px; left: -18px;
+    width: 55px; height: 55px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.08);
+    pointer-events: none;
+  }
+  .stat-card:nth-child(1) {
+    animation-delay: 0.3s;
+    background: linear-gradient(135deg, #1a7a6e 0%, #2aa897 100%);
+    box-shadow: 0 8px 32px rgba(26,122,110,0.38), 0 2px 8px rgba(26,122,110,0.2);
+    border: 1px solid rgba(255,255,255,0.2);
+  }
+  .stat-card:nth-child(2) {
+    animation-delay: 0.5s;
+    background: linear-gradient(135deg, #2b6cb0 0%, #4299e1 100%);
+    box-shadow: 0 8px 32px rgba(43,108,176,0.38), 0 2px 8px rgba(43,108,176,0.2);
+    border: 1px solid rgba(255,255,255,0.2);
+  }
+  .stat-card:nth-child(3) {
+    animation-delay: 0.7s;
+    background: linear-gradient(135deg, #c53030 0%, #e05252 100%);
+    box-shadow: 0 8px 32px rgba(197,48,48,0.38), 0 2px 8px rgba(197,48,48,0.2);
+    border: 1px solid rgba(255,255,255,0.2);
+  }
+  .stat-card:nth-child(4) {
+    animation-delay: 0.9s;
+    background: linear-gradient(135deg, #b7791f 0%, #e8a020 100%);
+    box-shadow: 0 8px 32px rgba(183,121,31,0.38), 0 2px 8px rgba(183,121,31,0.2);
+    border: 1px solid rgba(255,255,255,0.2);
+  }
   @keyframes floatUp {
     to { opacity: 1; transform: translateY(0); }
   }
   .stat-card .num {
     font-family: 'Playfair Display', serif;
-    font-size: 32px;
+    font-size: 24px;
     font-weight: 900;
-    color: var(--teal);
+    color: white;
     display: block;
+    line-height: 1;
+    margin-bottom: 4px;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.18);
   }
   .stat-card .lbl {
-    font-size: 11px;
-    color: var(--gray-600);
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    margin-top: 2px;
+    font-size: 9.5px;
+    color: rgba(255,255,255,0.88);
+    letter-spacing: 0.3px;
+    line-height: 1.35;
+    font-weight: 600;
+    text-transform: none;
+    margin-top: 0;
   }
 
   /* ===== CHAPTER STYLES ===== */
@@ -1267,56 +1320,104 @@
     <!-- COVER -->
     <section id="cover" class="cover">
       <div class="cover-grid"></div>
+      <!-- Top accent bar — premium publication touch -->
+      <div style="position:absolute;top:0;left:0;right:0;height:5px;background:linear-gradient(90deg,#0d9488,#3b82f6,#0d9488);z-index:3;"></div>
 
-      <!-- Animated SVG Data Network Illustration -->
-      <svg style="position:absolute;right:0;top:0;bottom:0;width:48%;height:100%;opacity:0.18;pointer-events:none;" viewBox="0 0 500 700" xmlns="http://www.w3.org/2000/svg">
-        <!-- Network connections -->
-        <line x1="250" y1="350" x2="120" y2="200" stroke="#1a7a6e" stroke-width="2" stroke-dasharray="6,4" opacity="0.7"/>
-        <line x1="250" y1="350" x2="380" y2="200" stroke="#1a7a6e" stroke-width="2" stroke-dasharray="6,4" opacity="0.7"/>
-        <line x1="250" y1="350" x2="100" y2="480" stroke="#1a7a6e" stroke-width="2" stroke-dasharray="6,4" opacity="0.7"/>
-        <line x1="250" y1="350" x2="400" y2="480" stroke="#e8a020" stroke-width="2" stroke-dasharray="6,4" opacity="0.7"/>
-        <line x1="250" y1="350" x2="250" y2="150" stroke="#1a7a6e" stroke-width="3" opacity="0.8"/>
-        <line x1="120" y1="200" x2="50" y2="120" stroke="#1a7a6e" stroke-width="1.5" stroke-dasharray="4,4" opacity="0.5"/>
-        <line x1="380" y1="200" x2="450" y2="120" stroke="#1a7a6e" stroke-width="1.5" stroke-dasharray="4,4" opacity="0.5"/>
-        <line x1="100" y1="480" x2="60" y2="580" stroke="#e8a020" stroke-width="1.5" stroke-dasharray="4,4" opacity="0.5"/>
-        <line x1="400" y1="480" x2="440" y2="580" stroke="#e8a020" stroke-width="1.5" stroke-dasharray="4,4" opacity="0.5"/>
-        <!-- Center node -->
-        <circle cx="250" cy="350" r="32" fill="#1a7a6e" opacity="0.9"/>
-        <circle cx="250" cy="350" r="22" fill="#2aa897" opacity="1"/>
-        <text x="250" y="355" text-anchor="middle" fill="white" font-size="12" font-weight="bold">DQ</text>
-        <!-- Orbital nodes -->
-        <circle cx="250" cy="150" r="22" fill="#e8a020" opacity="0.85"/>
-        <text x="250" y="155" text-anchor="middle" fill="white" font-size="9" font-weight="bold">TRUST</text>
-        <circle cx="120" cy="200" r="18" fill="#1a7a6e" opacity="0.8"/>
-        <text x="120" y="204" text-anchor="middle" fill="white" font-size="8">DATA</text>
-        <circle cx="380" cy="200" r="18" fill="#1a7a6e" opacity="0.8"/>
-        <text x="380" y="204" text-anchor="middle" fill="white" font-size="8">AI/ML</text>
-        <circle cx="100" cy="480" r="18" fill="#2aa897" opacity="0.8"/>
-        <text x="100" y="484" text-anchor="middle" fill="white" font-size="7">GOVERN</text>
-        <circle cx="400" cy="480" r="18" fill="#2aa897" opacity="0.8"/>
-        <text x="400" y="484" text-anchor="middle" fill="white" font-size="8">ALERT</text>
-        <!-- Small satellite nodes -->
-        <circle cx="50" cy="120" r="10" fill="#e8a020" opacity="0.6"/>
-        <circle cx="450" cy="120" r="10" fill="#e8a020" opacity="0.6"/>
-        <circle cx="60" cy="580" r="10" fill="#1a7a6e" opacity="0.6"/>
-        <circle cx="440" cy="580" r="10" fill="#1a7a6e" opacity="0.6"/>
-        <!-- Circular orbit -->
-        <circle cx="250" cy="350" r="120" fill="none" stroke="#1a7a6e" stroke-width="1" stroke-dasharray="3,6" opacity="0.3"/>
-        <circle cx="250" cy="350" r="200" fill="none" stroke="#e8a020" stroke-width="0.5" stroke-dasharray="3,9" opacity="0.2"/>
+      <!-- Cover illustration: 5-Part book structure as a pipeline flow -->
+      <svg style="position:absolute;right:0;top:0;bottom:0;width:50%;height:100%;opacity:0.30;pointer-events:none;" viewBox="0 0 500 700" xmlns="http://www.w3.org/2000/svg">
+        <!-- Vertical spine -->
+        <line x1="250" y1="60" x2="250" y2="640" stroke="#1a7a6e" stroke-width="2.5" stroke-dasharray="6,5" opacity="0.5"/>
+        <!-- Part I: Foundations -->
+        <circle cx="250" cy="100" r="36" fill="#1a7a6e" opacity="0.9"/>
+        <text x="250" y="96" text-anchor="middle" fill="white" font-size="9" font-weight="800">PART I</text>
+        <text x="250" y="109" text-anchor="middle" fill="rgba(255,255,255,0.85)" font-size="7.5">FOUNDATIONS</text>
+        <!-- satellites Part I -->
+        <line x1="250" y1="100" x2="130" y2="80" stroke="#1a7a6e" stroke-width="1.2" stroke-dasharray="4,4" opacity="0.5"/>
+        <circle cx="118" cy="76" r="14" fill="#2aa897" opacity="0.75"/>
+        <text x="118" y="80" text-anchor="middle" fill="white" font-size="6.5">6 DIM</text>
+        <line x1="250" y1="100" x2="370" y2="75" stroke="#1a7a6e" stroke-width="1.2" stroke-dasharray="4,4" opacity="0.5"/>
+        <circle cx="382" cy="72" r="14" fill="#2aa897" opacity="0.75"/>
+        <text x="382" y="76" text-anchor="middle" fill="white" font-size="6.5">AI ERA</text>
+        <!-- Part II: Setup -->
+        <circle cx="250" cy="220" r="32" fill="#2b6cb0" opacity="0.85"/>
+        <text x="250" y="216" text-anchor="middle" fill="white" font-size="9" font-weight="800">PART II</text>
+        <text x="250" y="229" text-anchor="middle" fill="rgba(255,255,255,0.85)" font-size="7.5">SETUP</text>
+        <line x1="250" y1="220" x2="110" y2="235" stroke="#2b6cb0" stroke-width="1.2" stroke-dasharray="4,4" opacity="0.5"/>
+        <circle cx="97" cy="237" r="14" fill="#2b6cb0" opacity="0.65"/>
+        <text x="97" y="241" text-anchor="middle" fill="white" font-size="6.5">INFRA</text>
+        <line x1="250" y1="220" x2="380" y2="205" stroke="#2b6cb0" stroke-width="1.2" stroke-dasharray="4,4" opacity="0.5"/>
+        <circle cx="393" cy="202" r="14" fill="#2b6cb0" opacity="0.65"/>
+        <text x="393" y="206" text-anchor="middle" fill="white" font-size="6.5">CHECKS</text>
+        <!-- Part III: Monitor -->
+        <circle cx="250" cy="340" r="32" fill="#6b46c1" opacity="0.85"/>
+        <text x="250" y="336" text-anchor="middle" fill="white" font-size="9" font-weight="800">PART III</text>
+        <text x="250" y="349" text-anchor="middle" fill="rgba(255,255,255,0.85)" font-size="7.5">MONITOR</text>
+        <line x1="250" y1="340" x2="115" y2="355" stroke="#6b46c1" stroke-width="1.2" stroke-dasharray="4,4" opacity="0.5"/>
+        <circle cx="102" cy="357" r="14" fill="#6b46c1" opacity="0.65"/>
+        <text x="102" y="361" text-anchor="middle" fill="white" font-size="6.5">ALERTS</text>
+        <line x1="250" y1="340" x2="382" y2="322" stroke="#6b46c1" stroke-width="1.2" stroke-dasharray="4,4" opacity="0.5"/>
+        <circle cx="395" cy="319" r="14" fill="#6b46c1" opacity="0.65"/>
+        <text x="395" y="323" text-anchor="middle" fill="white" font-size="6.5">KPIs</text>
+        <!-- Part IV: Improve -->
+        <circle cx="250" cy="460" r="32" fill="#c05621" opacity="0.85"/>
+        <text x="250" y="456" text-anchor="middle" fill="white" font-size="9" font-weight="800">PART IV</text>
+        <text x="250" y="469" text-anchor="middle" fill="rgba(255,255,255,0.85)" font-size="7.5">IMPROVE</text>
+        <line x1="250" y1="460" x2="118" y2="472" stroke="#c05621" stroke-width="1.2" stroke-dasharray="4,4" opacity="0.5"/>
+        <circle cx="105" cy="474" r="14" fill="#c05621" opacity="0.65"/>
+        <text x="105" y="478" text-anchor="middle" fill="white" font-size="6.5">RCA</text>
+        <line x1="250" y1="460" x2="385" y2="445" stroke="#c05621" stroke-width="1.2" stroke-dasharray="4,4" opacity="0.5"/>
+        <circle cx="398" cy="443" r="14" fill="#c05621" opacity="0.65"/>
+        <text x="398" y="447" text-anchor="middle" fill="white" font-size="6.5">FIX</text>
+        <!-- Part V: Advanced -->
+        <circle cx="250" cy="580" r="36" fill="#e8a020" opacity="0.9"/>
+        <text x="250" y="576" text-anchor="middle" fill="white" font-size="9" font-weight="800">PART V</text>
+        <text x="250" y="589" text-anchor="middle" fill="rgba(255,255,255,0.85)" font-size="7.5">ADVANCED</text>
+        <line x1="250" y1="580" x2="112" y2="595" stroke="#e8a020" stroke-width="1.2" stroke-dasharray="4,4" opacity="0.5"/>
+        <circle cx="99" cy="597" r="14" fill="#e8a020" opacity="0.65"/>
+        <text x="99" y="601" text-anchor="middle" fill="white" font-size="6">GOVERN</text>
+        <line x1="250" y1="580" x2="385" y2="563" stroke="#e8a020" stroke-width="1.2" stroke-dasharray="4,4" opacity="0.5"/>
+        <circle cx="398" cy="561" r="14" fill="#e8a020" opacity="0.65"/>
+        <text x="398" y="565" text-anchor="middle" fill="white" font-size="6">AI/ML</text>
+        <!-- Outer orbit ring -->
+        <circle cx="250" cy="340" r="290" fill="none" stroke="#1a7a6e" stroke-width="0.5" stroke-dasharray="3,10" opacity="0.18"/>
       </svg>
 
       <div class="cover-content">
-        <div class="cover-eyebrow">The Definitive Professional Reference</div>
+        <div class="cover-eyebrow">Beginner to Expert · 20 Chapters · 5 Parts</div>
         <h1>Data <span>Quality</span><br>Handbook</h1>
-        <p class="cover-subtitle">A comprehensive guide to understanding, implementing, and sustaining data quality across modern data ecosystems — from source systems and pipelines to AI models and governance frameworks.</p>
-        <div style="margin-top:24px; color:var(--navy); font-size:15px; font-family:'Source Sans 3',sans-serif;">By <strong style="color:var(--teal);">Bina Acharya</strong></div>
-        <div style="margin-top:8px; color:var(--gray-600); font-size:13px; letter-spacing:1px; text-transform:uppercase;">Version 1.0 · 2025</div>
+        <p class="cover-subtitle">A practical, end-to-end guide to understanding, measuring, and improving data quality — from your first check to enterprise-grade governance, AI/ML pipelines, and a mature DQ culture.</p>
+        <div style="margin-top:28px; display:inline-flex; align-items:center; gap:14px; background:white; border:1px solid rgba(13,148,136,0.25); border-radius:50px; padding:10px 20px 10px 10px; box-shadow:0 2px 12px rgba(13,148,136,0.1);">
+          <div style="width:40px; height:40px; border-radius:50%; background:linear-gradient(135deg,#0d9488,#3b82f6); display:flex; align-items:center; justify-content:center; color:white; font-size:16px; font-weight:700; flex-shrink:0;">BA</div>
+          <div>
+            <div style="font-size:14px; font-weight:700; color:var(--navy); line-height:1.2;">Bina Acharya</div>
+            <div style="font-size:11.5px; color:var(--teal); margin-top:1px;"><a href="mailto:acharyabina01@hamil.com" style="color:var(--teal); text-decoration:none;">acharyabina01@hamil.com</a></div>
+          </div>
+          <div style="width:1px; height:32px; background:rgba(13,148,136,0.2);"></div>
+          <div style="font-size:11px; color:var(--gray-400); letter-spacing:1px; text-transform:uppercase; line-height:1.5;">Version 1.0<br>2025</div>
+        </div>
       </div>
+
       <div class="floating-stats">
-        <div class="stat-card"><span class="num">$12.9T</span><span class="lbl">Cost of Bad Data /yr</span></div>
-        <div class="stat-card"><span class="num">80%</span><span class="lbl">AI fails due to poor DQ</span></div>
-        <div class="stat-card"><span class="num">6</span><span class="lbl">Core DQ Dimensions</span></div>
-        <div class="stat-card"><span class="num">3×</span><span class="lbl">ROI with DQ programs</span></div>
+        <div class="stat-card">
+          <div style="font-size:16px;margin-bottom:4px;opacity:0.9;">🤖</div>
+          <span class="num">80%</span>
+          <span class="lbl">of AI projects fail due to poor-quality data</span>
+        </div>
+        <div class="stat-card">
+          <div style="font-size:16px;margin-bottom:4px;opacity:0.9;">🎯</div>
+          <span class="num">6</span>
+          <span class="lbl">core quality dimensions covered in depth</span>
+        </div>
+        <div class="stat-card">
+          <div style="font-size:16px;margin-bottom:4px;opacity:0.9;">⚠️</div>
+          <span class="num">$12.9T</span>
+          <span class="lbl">annual global cost of bad data (Gartner)</span>
+        </div>
+        <div class="stat-card">
+          <div style="font-size:16px;margin-bottom:4px;opacity:0.9;">📈</div>
+          <span class="num">3.1×</span>
+          <span class="lbl">average ROI from formal DQ programs</span>
+        </div>
       </div>
     </section>
 
